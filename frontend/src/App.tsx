@@ -126,6 +126,8 @@ export default function App() {
   const [draftError, setDraftError] = useState("");
   const [isGeneratingPicking, setIsGeneratingPicking] = useState(false);
   const [pickingGenerated, setPickingGenerated] = useState(false);
+  const [isGeneratingDaFacing, setIsGeneratingDaFacing] = useState(false);
+  const [daFacingGenerated, setDaFacingGenerated] = useState(false);
   const [generationError, setGenerationError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [activePage, setActivePage] = useState<AppPage>("workflow");
@@ -155,6 +157,7 @@ export default function App() {
     setSavedOrder(null);
     setDraftError("");
     setPickingGenerated(false);
+    setDaFacingGenerated(false);
     setGenerationError("");
   }
 
@@ -185,6 +188,7 @@ export default function App() {
     setStep("check");
     setDraftError("");
     setPickingGenerated(false);
+    setDaFacingGenerated(false);
     setGenerationError("");
     setActivePage("workflow");
   }
@@ -337,6 +341,7 @@ export default function App() {
 
     setSavedOrder(body);
     setPickingGenerated(false);
+    setDaFacingGenerated(false);
     setStep("generate");
     setIsSavingDraft(false);
   }
@@ -370,7 +375,6 @@ export default function App() {
       setIsGeneratingPicking(false);
       return;
     }
-
     try {
       const file = await response.blob();
       if (file.size === 0) {
@@ -391,6 +395,62 @@ export default function App() {
       setGenerationError(t("generate.downloadError"));
     } finally {
       setIsGeneratingPicking(false);
+    }
+  }
+
+  async function generateDaFacing() {
+    if (!savedOrder || isGeneratingDaFacing) {
+      return;
+    }
+    setIsGeneratingDaFacing(true);
+    setGenerationError("");
+    setDaFacingGenerated(false);
+
+    let response: Response;
+    try {
+      response = await fetch(
+        `/api/orders/${savedOrder.id}/documents/da-facing`,
+        { method: "POST" },
+      );
+    } catch {
+      setGenerationError(t("generate.daFacingNetworkError"));
+      setIsGeneratingDaFacing(false);
+      return;
+    }
+    if (!response.ok) {
+      let body: unknown;
+      try {
+        body = await response.json();
+      } catch {
+        body = undefined;
+      }
+      setGenerationError(
+        responseDetail(body) ?? t("generate.daFacingGenerationError"),
+      );
+      setIsGeneratingDaFacing(false);
+      return;
+    }
+
+    try {
+      const file = await response.blob();
+      if (file.size === 0) {
+        throw new Error(t("generate.daFacingGenerationError"));
+      }
+      const disposition = response.headers.get("content-disposition");
+      const fileName =
+        disposition?.match(/filename="([^"]+)"/i)?.[1] ??
+        `${savedOrder.clientOrderNumber}_da_facing.xlsx`;
+      const downloadUrl = URL.createObjectURL(file);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = fileName;
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 0);
+      setDaFacingGenerated(true);
+    } catch {
+      setGenerationError(t("generate.daFacingDownloadError"));
+    } finally {
+      setIsGeneratingDaFacing(false);
     }
   }
 
@@ -752,37 +812,62 @@ export default function App() {
             )}
             <ul className="document-list">
               {(["followUp", "of", "picking", "daFacing"] as const).map(
-                (documentType) => (
-                  <li key={documentType}>
-                    <span className="document-status" aria-hidden="true">
-                      {documentType === "picking" && pickingGenerated
-                        ? "✓"
-                        : "—"}
-                    </span>
-                    {t(`generate.documents.${documentType}`)}
-                    {documentType === "picking" ? (
-                      <button
-                        className="text-button"
-                        type="button"
-                        disabled={isGeneratingPicking}
-                        onClick={() => void generatePicking()}
-                      >
-                        {isGeneratingPicking
-                          ? t("generate.pickingGenerating")
-                          : t("generate.pickingButton")}
-                      </button>
-                    ) : (
-                      <span className="document-unavailable">
-                        {t("generate.notReady")}
+                (documentType) => {
+                  const isPicking = documentType === "picking";
+                  const isDaFacing = documentType === "daFacing";
+                  const isAvailable = isPicking || isDaFacing;
+                  const isGenerated = isPicking
+                    ? pickingGenerated
+                    : isDaFacing && daFacingGenerated;
+                  const isGenerating = isPicking
+                    ? isGeneratingPicking
+                    : isDaFacing && isGeneratingDaFacing;
+                  return (
+                    <li key={documentType}>
+                      <span className="document-status" aria-hidden="true">
+                        {isGenerated ? "✓" : "—"}
                       </span>
-                    )}
-                    {documentType === "picking" && pickingGenerated && (
-                      <span className="document-unavailable">
-                        {t("generate.pickingGenerated")}
-                      </span>
-                    )}
-                  </li>
-                ),
+                      {t(`generate.documents.${documentType}`)}
+                      {isAvailable ? (
+                        <button
+                          className="text-button"
+                          type="button"
+                          disabled={Boolean(isGenerating)}
+                          onClick={() =>
+                            void (isPicking
+                              ? generatePicking()
+                              : generateDaFacing())
+                          }
+                        >
+                          {isGenerating
+                            ? t(
+                                isPicking
+                                  ? "generate.pickingGenerating"
+                                  : "generate.daFacingGenerating",
+                              )
+                            : t(
+                                isPicking
+                                  ? "generate.pickingButton"
+                                  : "generate.daFacingButton",
+                              )}
+                        </button>
+                      ) : (
+                        <span className="document-unavailable">
+                          {t("generate.notReady")}
+                        </span>
+                      )}
+                      {isGenerated && (
+                        <span className="document-unavailable">
+                          {t(
+                            isPicking
+                              ? "generate.pickingGenerated"
+                              : "generate.daFacingGenerated",
+                          )}
+                        </span>
+                      )}
+                    </li>
+                  );
+                },
               )}
             </ul>
             <div className="workflow-actions">

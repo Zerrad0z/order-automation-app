@@ -6,9 +6,8 @@ Those source documents contain customer and commercial data, so `docs/*.pdf` and
 PC; do not copy them into the public repository.
 
 The sheet names, used ranges, formulas, merged cells, and print settings below were
-read from the supplied workbooks. A “per-order field” means a field observed in the
-provided order workbook, not a confirmed write mapping. The generator must still
-copy its template and preserve all workbook formatting, formulas, and print setup.
+read from the supplied workbooks. Generators copy local templates, preserve their
+formatting, and replace only order-specific values. Customer documents remain local.
 
 ## `BON_DE_FABRICATION_ZEYNA.xlsx`
 
@@ -100,19 +99,22 @@ calculation, and a final column. The provided labels have spelling and
 abbreviation inconsistencies; reproduce the template text rather than
 silently renaming columns.
 
-Per-order/history values occupy rows 7–23. Observed formulas include
-`G7=SUM(E7-F7)`, `M7=K7*I7`, `N7=K7*L7*J7`, and `O7=(E7+M7)-F7`.
-The workbook has 43 formulas; formula-derived cells must be preserved. The
-user confirms that `O` (`E + M - F`) is the inventory after the order. The
-93x64-cm plate example has manually entered per-plate yields in column `I`:
-9x13 = 9, 20x25 = 2, 21x29.7 = 1, 24x30 = 1, 29.7x42 = 1, and 30x40 = 1.
-The user wants a generated DA to include only dimensions in the order and has
-chosen app-managed inventory, initially seeded at 999,999 per supported item.
-The user specifies a 93x64-cm plate, zero edge margin, zero kerf, 90-degree
-rotation allowed, and dimensions kept in the order's original sequence.
-Whether all plates must repeat one mixed-size layout, as the example formulas
-assume, or may use different layouts is still **TO CONFIRM**. Do not generate a
-production disposition until that is settled.
+Per-order/history values occupy rows 7–23. The DA generator clears these sample
+rows and their vertical merges before writing a new order, so the filled history
+example's customer data is not carried into the generated workbook. It writes
+only dimensions present in the order and recalculates the `G`, `M`, and `O`
+summary formulas. `O` (`E + M - F`) is the inventory after the order; `E`
+shows current app stock aggregated across the order's colors, while the
+generated cutting plan uses full order quantities and does not subtract stock.
+Generating a workbook does not create stock movements. Initial stock values are
+test data (999,999 per supported item).
+
+The `CUTTING_LAYOUTS` worksheet lists each planned piece's plate number,
+dimension, coordinates, and oriented width/height in millimeters. The confirmed
+rules are 93x64-cm plates, zero edge margin and kerf, 90-degree rotation
+allowed, and dimensions kept in the order's original sequence. Different plates
+may use different size mixes. A best-short-side-fit heuristic creates valid
+layouts but does not guarantee the minimum number of plates.
 
 Merged cells:
 
@@ -206,6 +208,6 @@ writing; field mappings and the exact output filename still need confirmation.
 - `PORTAFOTOS 03.06.2025.pdf` and `PORTAFOTOS 24.02.2025.pdf` are additional
   PDF reference material; they are not the sample proforma specified for the
   first parser acceptance test.
-- The configured output names `of_zeyna.xlsx`, `fiche_ramassage.xlsx`, and
-  `da_facing.xlsx` must be confirmed against the supplied workbooks before
-  template mapping or golden-file generation is implemented.
+- The DA output is `da_facing.xlsx`; the ZEYNA picking output is
+  `fiche_ramassage.xlsx`. Order follow-up and manufacturing-order generation
+  remain unavailable pending confirmed field mappings.

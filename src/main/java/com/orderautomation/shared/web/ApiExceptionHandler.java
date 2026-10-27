@@ -19,7 +19,10 @@ public class ApiExceptionHandler {
               HttpStatus.CONFLICT;
           case "PICKING_TEMPLATE_MISSING",
                   "PICKING_TEMPLATE_INVALID",
-                  "PICKING_GENERATION_FAILED" ->
+                  "PICKING_GENERATION_FAILED",
+                  "DA_TEMPLATE_MISSING",
+                  "DA_TEMPLATE_INVALID",
+                  "DA_GENERATION_FAILED" ->
               HttpStatus.INTERNAL_SERVER_ERROR;
           case "ORDER_INVALID_NUMBER" -> HttpStatus.BAD_REQUEST;
           case "ORDER_NOT_FOUND", "STOCK_ITEM_NOT_FOUND" -> HttpStatus.NOT_FOUND;

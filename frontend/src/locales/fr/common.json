@@ -144,8 +144,8 @@
   },
   "generate": {
     "title": "Générer les documents de commande",
-    "availableTitle": "Les fiches de ramassage peuvent maintenant être générées",
-    "availableDescription": "Générez maintenant le classeur ZEYNA sélectionné. Les autres documents, notamment la disposition de découpe des façades DA, nécessitent encore la confirmation de leurs règles de modèle.",
+    "availableTitle": "Les fiches de ramassage et plans de découpe DA peuvent être générés",
+    "availableDescription": "Générez le classeur ZEYNA sélectionné ou la demande de façades DA. Le plan DA utilise les quantités complètes de la commande sur des plaques de 93 × 64 cm ; le mélange des formats peut varier d’une plaque à l’autre.",
     "documents": {
       "followUp": "Fiche de suivi de commande",
       "of": "Bon de fabrication",
@@ -158,6 +158,12 @@
     "pickingGenerated": "Fiche de ramassage générée",
     "generationError": "La fiche de ramassage n’a pas pu être générée.",
     "networkError": "Impossible de contacter l’application locale pour générer la fiche de ramassage.",
-    "downloadError": "La fiche de ramassage a été générée, mais son téléchargement a échoué."
+    "downloadError": "La fiche de ramassage a été générée, mais son téléchargement a échoué.",
+    "daFacingButton": "Générer la demande de façades DA",
+    "daFacingGenerating": "Génération de la demande DA…",
+    "daFacingGenerated": "Demande de façades DA générée",
+    "daFacingGenerationError": "La demande de façades DA n’a pas pu être générée.",
+    "daFacingNetworkError": "Impossible de contacter l’application locale pour générer la demande DA.",
+    "daFacingDownloadError": "La demande de façades DA a été générée, mais son téléchargement a échoué."
   }
 }

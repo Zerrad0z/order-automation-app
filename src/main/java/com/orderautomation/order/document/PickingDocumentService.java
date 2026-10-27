@@ -93,6 +93,9 @@ public class PickingDocumentService {
       } catch (AtomicMoveNotSupportedException exception) {
         Files.move(temporaryPath, outputPath, StandardCopyOption.REPLACE_EXISTING);
       }
+    } catch (AppException exception) {
+      deleteTemporaryFile(temporaryPath, exception);
+      throw exception;
     } catch (IOException exception) {
       deleteTemporaryFile(temporaryPath, exception);
       throw new AppException(
@@ -205,7 +208,7 @@ public class PickingDocumentService {
         .toLowerCase(Locale.ROOT);
   }
 
-  private void deleteTemporaryFile(Path temporaryPath, IOException failure) {
+  private void deleteTemporaryFile(Path temporaryPath, Throwable failure) {
     if (temporaryPath == null) {
       return;
     }

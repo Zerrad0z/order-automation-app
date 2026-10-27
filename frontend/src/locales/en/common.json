@@ -144,8 +144,8 @@
   },
   "generate": {
     "title": "Generate order documents",
-    "availableTitle": "Picking sheets can now be generated",
-    "availableDescription": "Generate the selected ZEYNA picking workbook now. The other documents, especially the DA cutting disposition, still need their template rules confirmed.",
+    "availableTitle": "Picking sheets and DA cutting plans can now be generated",
+    "availableDescription": "Generate the selected ZEYNA picking workbook or DA facing request. The DA plan uses the full order quantities on 93 × 64 cm plates; plate layouts may use different size mixes.",
     "documents": {
       "followUp": "Order follow-up sheet",
       "of": "Manufacturing order (OF)",
@@ -158,6 +158,12 @@
     "pickingGenerated": "Picking sheet generated",
     "generationError": "The picking sheet could not be generated.",
     "networkError": "Could not reach the local application to generate the picking sheet.",
-    "downloadError": "The picking sheet was generated but could not be downloaded."
+    "downloadError": "The picking sheet was generated but could not be downloaded.",
+    "daFacingButton": "Generate DA facing request",
+    "daFacingGenerating": "Generating DA facing request…",
+    "daFacingGenerated": "DA facing request generated",
+    "daFacingGenerationError": "The DA facing request could not be generated.",
+    "daFacingNetworkError": "Could not reach the local application to generate the DA facing request.",
+    "daFacingDownloadError": "The DA facing request was generated but could not be downloaded."
   }
 }

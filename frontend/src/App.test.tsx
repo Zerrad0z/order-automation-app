@@ -112,6 +112,13 @@ describe("Order Automation home", () => {
           get: () => 'attachment; filename="TEST_ORDER_fiche_ramassage.xlsx"',
         },
         blob: async () => new Blob(["xlsx data"]),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: {
+          get: () => 'attachment; filename="TEST_ORDER_da_facing.xlsx"',
+        },
+        blob: async () => new Blob(["xlsx data"]),
       });
     vi.stubGlobal("URL", {
       createObjectURL: vi.fn().mockReturnValue("blob:test"),
@@ -194,6 +201,16 @@ describe("Order Automation home", () => {
     ).toBeInTheDocument();
     expect(fetchMock).toHaveBeenLastCalledWith(
       "/api/orders/8/documents/picking",
+      { method: "POST" },
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Generate DA facing request" }),
+    );
+    expect(
+      await screen.findByText("DA facing request generated"),
+    ).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      "/api/orders/8/documents/da-facing",
       { method: "POST" },
     );
   });
@@ -331,7 +348,7 @@ describe("Order Automation home", () => {
       await screen.findByRole("heading", { name: "Generate order documents" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent(
-      "Generate the selected ZEYNA picking workbook now",
+      "Generate the selected ZEYNA picking workbook or DA facing request",
     );
     expect(screen.getByText("Draft · M20261020")).toBeInTheDocument();
     const createOrderRequest = fetchMock.mock.calls[1];
