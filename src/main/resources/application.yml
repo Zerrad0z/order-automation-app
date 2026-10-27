@@ -1,0 +1,25 @@
+server:
+  address: 127.0.0.1
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+spring:
+  application:
+    name: order-automation
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  main:
+    banner-mode: "off"
+
+logging:
+  file:
+    name: ${user.home}/OrderAutomation/logs/app.log
