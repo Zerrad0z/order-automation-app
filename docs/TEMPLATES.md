@@ -108,8 +108,11 @@ user confirms that `O` (`E + M - F`) is the inventory after the order. The
 9x13 = 9, 20x25 = 2, 21x29.7 = 1, 24x30 = 1, 29.7x42 = 1, and 30x40 = 1.
 The user wants a generated DA to include only dimensions in the order and has
 chosen app-managed inventory, initially seeded at 999,999 per supported item.
-The algorithm for arranging order dimensions on a plate is still **TO CONFIRM**;
-until then, preserve the previous DA layout rather than infer a cutting plan.
+The user specifies a 93x64-cm plate, zero edge margin, zero kerf, 90-degree
+rotation allowed, and dimensions kept in the order's original sequence.
+Whether all plates must repeat one mixed-size layout, as the example formulas
+assume, or may use different layouts is still **TO CONFIRM**. Do not generate a
+production disposition until that is settled.
 
 Merged cells:
 
