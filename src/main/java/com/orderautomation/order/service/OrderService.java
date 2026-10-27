@@ -80,13 +80,26 @@ public class OrderService {
   private CustomerOrder changeStatus(
       long id, String expectedStatus, String newStatus, String errorCode) {
     CustomerOrder order = get(id);
-    if (!order.status().equals(expectedStatus)
-        || !orderRepository.updateStatus(id, expectedStatus, newStatus)) {
+    if (!order.status().equals(expectedStatus)) {
       throw new AppException(
           errorCode,
           expectedStatus.equals("DRAFT")
               ? "Only draft orders can be archived."
               : "Only archived orders can be restored.");
+    }
+    try {
+      if (!orderRepository.updateStatus(id, expectedStatus, newStatus)) {
+        throw new AppException(
+            errorCode,
+            expectedStatus.equals("DRAFT")
+                ? "Only draft orders can be archived."
+                : "Only archived orders can be restored.");
+      }
+    } catch (DuplicateKeyException exception) {
+      throw new AppException(
+          "ORDER_ALREADY_EXISTS",
+          "An order with customer order number " + order.clientOrderNumber() + " already exists.",
+          exception);
     }
     return get(id);
   }

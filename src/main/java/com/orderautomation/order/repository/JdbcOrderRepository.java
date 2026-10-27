@@ -63,10 +63,7 @@ public class JdbcOrderRepository implements OrderRepository {
           incoterm,
           createdAt);
     } catch (UncategorizedSQLException exception) {
-      String message = exception.getSQLException().getMessage();
-      if (exception.getSQLException().getErrorCode() == 19
-          && message != null
-          && message.contains("customer_order.customer, customer_order.client_order_number")) {
+      if (isDuplicateOrderNumber(exception)) {
         throw new DuplicateKeyException("The customer order number already exists.", exception);
       }
       throw exception;
@@ -96,12 +93,26 @@ public class JdbcOrderRepository implements OrderRepository {
 
   @Override
   public boolean updateStatus(long orderId, String expectedStatus, String newStatus) {
-    return jdbcTemplate.update(
-            "UPDATE customer_order SET status = ? WHERE id = ? AND status = ?",
-            newStatus,
-            orderId,
-            expectedStatus)
-        == 1;
+    try {
+      return jdbcTemplate.update(
+              "UPDATE customer_order SET status = ? WHERE id = ? AND status = ?",
+              newStatus,
+              orderId,
+              expectedStatus)
+          == 1;
+    } catch (UncategorizedSQLException exception) {
+      if (isDuplicateOrderNumber(exception)) {
+        throw new DuplicateKeyException("The customer order number already exists.", exception);
+      }
+      throw exception;
+    }
+  }
+
+  private boolean isDuplicateOrderNumber(UncategorizedSQLException exception) {
+    String message = exception.getSQLException().getMessage();
+    return exception.getSQLException().getErrorCode() == 19
+        && message != null
+        && message.contains("customer_order.customer, customer_order.client_order_number");
   }
 
   private void insertLines(long orderId, List<OrderLine> lines) {

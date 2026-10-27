@@ -130,6 +130,53 @@ class OrderControllerTest {
         .andExpect(jsonPath("$.status").value("GENERATED"));
   }
 
+  @Test
+  void draftOrder_whenArchivedAllowsNumberReuseButCannotRestoreDuplicate() throws Exception {
+    String orderNumber = "REUSE_" + UUID.randomUUID().toString().replace("-", "");
+    MvcResult created =
+        mockMvc
+            .perform(
+                post("/api/orders")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(createRequest(orderNumber))))
+            .andExpect(status().isCreated())
+            .andReturn();
+    long archivedOrderId =
+        objectMapper.readTree(created.getResponse().getContentAsString()).get("id").asLong();
+
+    mockMvc.perform(post("/api/orders/{id}/archive", archivedOrderId)).andExpect(status().isOk());
+    MvcResult replacement =
+        mockMvc
+            .perform(
+                post("/api/orders")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(createRequest(orderNumber))))
+            .andExpect(status().isCreated())
+            .andReturn();
+    long replacementOrderId =
+        objectMapper.readTree(replacement.getResponse().getContentAsString()).get("id").asLong();
+
+    mockMvc
+        .perform(
+            post("/api/orders")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createRequest(orderNumber))))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("ORDER_ALREADY_EXISTS"));
+    mockMvc
+        .perform(post("/api/orders/{id}/restore", archivedOrderId))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("ORDER_ALREADY_EXISTS"));
+    mockMvc
+        .perform(get("/api/orders/{id}", archivedOrderId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("ARCHIVED"));
+    mockMvc
+        .perform(get("/api/orders/{id}", replacementOrderId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("DRAFT"));
+  }
+
   private Map<String, Object> createRequest(String orderNumber) {
     return Map.of(
         "clientOrderNumber",
