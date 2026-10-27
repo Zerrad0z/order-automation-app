@@ -232,6 +232,25 @@ h1 {
   line-height: 1.5;
 }
 
+.customer-field {
+  display: grid;
+  max-width: 260px;
+  gap: 7px;
+  margin-bottom: 17px;
+  color: #536274;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.customer-field select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 12px;
+}
+
 .file-picker {
   display: flex;
   min-height: 92px;
@@ -251,6 +270,11 @@ h1 {
 .file-picker:focus-within {
   border-color: var(--accent);
   background: #f2f8f6;
+}
+
+.file-picker-dragging {
+  border-color: var(--accent);
+  background: #eaf5f1;
 }
 
 .file-picker input {
@@ -783,6 +807,14 @@ td {
   .file-picker,
   .ignored-lines {
     background: #17232e;
+  }
+
+  .file-picker-dragging {
+    background: #1d3831;
+  }
+
+  .customer-field {
+    color: #c1ccd7;
   }
 
   .file-icon,

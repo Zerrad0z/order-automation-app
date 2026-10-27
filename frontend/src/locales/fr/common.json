@@ -15,8 +15,18 @@
     "backToCheck": "Retour à la vérification",
     "resolveWarnings": "Faites correspondre les quantités au sous-total déclaré pour continuer."
   },
+  "orders": {
+    "saving": "Enregistrement du brouillon…",
+    "draftStatus": "Brouillon · {{orderNumber}}",
+    "networkError": "Impossible d’enregistrer la commande. Vérifiez l’application locale et réessayez.",
+    "invalidResponse": "L’application a renvoyé une réponse de commande illisible.",
+    "conflict": "Une commande portant ce numéro client existe déjà. Aucune modification n’a été effectuée.",
+    "createError": "Le brouillon de commande n’a pas pu être enregistré."
+  },
   "upload": {
     "intro": "Importez une facture pro forma pour vérifier les lignes de commande avant de préparer les documents suivants.",
+    "customer": "Client",
+    "otherCustomers": "Autres clients (bientôt disponibles)",
     "title": "Importer une pro forma",
     "description": "Choisissez le PDF de la pro forma client pour extraire et vérifier ses informations.",
     "selectFile": "Choisir une pro forma PDF",

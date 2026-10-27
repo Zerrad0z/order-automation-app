@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ChangeEvent, FormEvent } from "react";
+import type { ChangeEvent, DragEvent, FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 
 type ProformaLine = {
@@ -32,6 +32,12 @@ type ProformaResult = {
   warnings: string[];
 };
 
+type SavedOrder = {
+  id: number;
+  status: string;
+  clientOrderNumber: string;
+};
+
 type WorkflowStep = "import" | "check" | "generate";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -58,6 +64,18 @@ function responseDetail(value: unknown): string | undefined {
   return typeof detail === "string" ? detail : undefined;
 }
 
+function isSavedOrder(value: unknown): value is SavedOrder {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const order = value as Record<string, unknown>;
+  return (
+    typeof order.id === "number" &&
+    typeof order.status === "string" &&
+    typeof order.clientOrderNumber === "string"
+  );
+}
+
 export default function App() {
   const { t, i18n } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
@@ -65,6 +83,10 @@ export default function App() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState<WorkflowStep>("import");
+  const [savedOrder, setSavedOrder] = useState<SavedOrder | null>(null);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [draftError, setDraftError] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
 
   const productPieces =
     result?.lines.reduce((total, line) => total + line.quantity, 0) ?? 0;
@@ -80,11 +102,22 @@ export default function App() {
     ) ?? [];
 
   function chooseFile(event: ChangeEvent<HTMLInputElement>) {
-    const selected = event.target.files?.[0] ?? null;
+    setSelectedFile(event.target.files?.[0] ?? null);
+  }
+
+  function setSelectedFile(selected: File | null) {
     setFile(selected);
     setResult(null);
     setError("");
     setStep("import");
+    setSavedOrder(null);
+    setDraftError("");
+  }
+
+  function dropFile(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    setIsDragging(false);
+    setSelectedFile(event.dataTransfer.files[0] ?? null);
   }
 
   function updateQuantity(lineIndex: number, quantity: number) {
@@ -116,6 +149,8 @@ export default function App() {
     setIsLoading(true);
     setError("");
     setResult(null);
+    setSavedOrder(null);
+    setDraftError("");
 
     const formData = new FormData();
     formData.append("file", file);
@@ -154,6 +189,78 @@ export default function App() {
     setResult(body);
     setStep("check");
     setIsLoading(false);
+  }
+
+  async function continueToGenerate() {
+    if (!result || !integrityMatches || isSavingDraft) {
+      return;
+    }
+
+    setIsSavingDraft(true);
+    setDraftError("");
+    const lines = result.lines.map(
+      ({ itemCode, clientRef, collection, color, format, quantity }) => ({
+        itemCode,
+        clientRef,
+        collection,
+        color,
+        format,
+        quantity,
+      }),
+    );
+    const requestBody = savedOrder
+      ? { lines }
+      : {
+          clientOrderNumber: result.clientOrderNumber,
+          proformaNumber: result.proformaNumber,
+          proformaDate: result.date,
+          incoterm: result.incoterm,
+          lines,
+        };
+    let response: Response;
+    try {
+      response = await fetch(
+        savedOrder ? `/api/orders/${savedOrder.id}/lines` : "/api/orders",
+        {
+          method: savedOrder ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody),
+        },
+      );
+    } catch {
+      setDraftError(t("orders.networkError"));
+      setIsSavingDraft(false);
+      return;
+    }
+
+    let body: unknown;
+    try {
+      body = await response.json();
+    } catch {
+      setDraftError(t("orders.invalidResponse"));
+      setIsSavingDraft(false);
+      return;
+    }
+
+    if (!response.ok) {
+      setDraftError(
+        responseDetail(body) ??
+          (response.status === 409
+            ? t("orders.conflict")
+            : t("orders.createError")),
+      );
+      setIsSavingDraft(false);
+      return;
+    }
+    if (!isSavedOrder(body)) {
+      setDraftError(t("orders.invalidResponse"));
+      setIsSavingDraft(false);
+      return;
+    }
+
+    setSavedOrder(body);
+    setStep("generate");
+    setIsSavingDraft(false);
   }
 
   return (
@@ -216,7 +323,24 @@ export default function App() {
                 <p>{t("upload.description")}</p>
               </div>
             </div>
-            <label className="file-picker">
+            <label className="customer-field">
+              <span>{t("upload.customer")}</span>
+              <select defaultValue="RESTAER">
+                <option value="RESTAER">RESTAER</option>
+                <option value="unavailable" disabled>
+                  {t("upload.otherCustomers")}
+                </option>
+              </select>
+            </label>
+            <label
+              className={`file-picker ${isDragging ? "file-picker-dragging" : ""}`}
+              onDragOver={(event) => {
+                event.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={dropFile}
+            >
               <input
                 type="file"
                 accept=".pdf,application/pdf"
@@ -405,15 +529,20 @@ export default function App() {
               </button>
               <button
                 type="button"
-                onClick={() => setStep("generate")}
-                disabled={!integrityMatches}
+                onClick={() => void continueToGenerate()}
+                disabled={!integrityMatches || isSavingDraft}
                 title={
                   integrityMatches ? undefined : t("workflow.resolveWarnings")
                 }
               >
-                {t("workflow.continue")}
+                {isSavingDraft ? t("orders.saving") : t("workflow.continue")}
               </button>
             </div>
+            {draftError && (
+              <p className="error-message" role="alert">
+                {draftError}
+              </p>
+            )}
           </section>
         )}
 
@@ -424,7 +553,13 @@ export default function App() {
                 <p className="eyebrow">{t("workflow.generate")}</p>
                 <h2 id="generate-title">{t("generate.title")}</h2>
               </div>
-              <span className="result-count">{result.clientOrderNumber}</span>
+              <span className="result-count">
+                {savedOrder
+                  ? t("orders.draftStatus", {
+                      orderNumber: savedOrder.clientOrderNumber,
+                    })
+                  : result.clientOrderNumber}
+              </span>
             </div>
             <div className="generation-blocked" role="status">
               <h3>{t("generate.blockedTitle")}</h3>

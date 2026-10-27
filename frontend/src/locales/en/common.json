@@ -15,8 +15,18 @@
     "backToCheck": "Back to check",
     "resolveWarnings": "Match the product quantities to the declared subtotal to continue."
   },
+  "orders": {
+    "saving": "Saving draft…",
+    "draftStatus": "Draft · {{orderNumber}}",
+    "networkError": "Could not save this order. Check the local application and try again.",
+    "invalidResponse": "The application returned an unreadable order response.",
+    "conflict": "An order with this customer order number already exists. No changes were made.",
+    "createError": "The order draft could not be saved."
+  },
   "upload": {
     "intro": "Import a proforma invoice to check its order lines before preparing the next documents.",
+    "customer": "Customer",
+    "otherCustomers": "Other customers (not available yet)",
     "title": "Import proforma",
     "description": "Choose the customer's PDF proforma to extract and review its details.",
     "selectFile": "Choose a PDF proforma",

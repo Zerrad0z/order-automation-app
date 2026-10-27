@@ -1,8 +1,8 @@
 # Order Automation App
 
 Local order-document workflow for RESTAER (ZEYNA). The current milestone
-provides a local proforma import and review workflow, a PDF parser, a SQLite
-database foundation, and an API health endpoint.
+provides a local proforma import and review workflow, persisted draft orders, a
+PDF parser, and a SQLite database.
 
 ## Requirements
 
@@ -27,6 +27,10 @@ quantities. Scanned/image-only PDFs are not supported.
 
 The parser endpoint is `POST /api/proformas/parse` with a multipart `file`
 field. The parser currently targets the supplied RESTAER/ZEYNA proforma layout.
+After checking the declared totals, the app saves a draft order. Draft orders
+can also be listed at `GET /api/orders`, read at `GET /api/orders/{id}`, and
+corrected with `PUT /api/orders/{id}/lines`.
+
 Workbook generation is not enabled yet: the required blank follow-up template
 is missing from the references, and the remaining template mappings need
 confirmation. No documents or stock changes are made by the current workflow.

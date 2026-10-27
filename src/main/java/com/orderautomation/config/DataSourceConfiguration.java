@@ -3,6 +3,7 @@ package com.orderautomation.config;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Clock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,11 @@ import org.sqlite.SQLiteDataSource;
 
 @Configuration
 public class DataSourceConfiguration {
+  @Bean
+  Clock clock() {
+    return Clock.systemUTC();
+  }
+
   @Bean
   SQLiteDataSource dataSource(
       @Value("${order-automation.data-dir:${user.home}/OrderAutomation/data}") String dataDir)
