@@ -5,6 +5,16 @@
     "description": "Préparer une commande client",
     "language": "Langue"
   },
+  "workflow": {
+    "label": "Étapes de préparation de la commande",
+    "import": "Importer",
+    "check": "Vérifier",
+    "generate": "Générer",
+    "back": "Retour",
+    "continue": "Continuer",
+    "backToCheck": "Retour à la vérification",
+    "resolveWarnings": "Faites correspondre les quantités au sous-total déclaré pour continuer."
+  },
   "upload": {
     "intro": "Importez une facture pro forma pour vérifier les lignes de commande avant de préparer les documents suivants.",
     "title": "Importer une pro forma",
@@ -25,12 +35,14 @@
     "kicker": "Résumé de l’import",
     "title": "Détails de la pro forma",
     "lineCount": "{{count}} lignes de commande",
+    "lineCountLabel": "Lignes trouvées",
+    "pieces": "Pièces produits",
     "proforma": "Pro forma",
     "order": "Commande client",
-    "customer": "Client",
-    "date": "Date d’émission",
-    "incoterm": "Incoterm",
-    "subtotal": "Quantité déclarée",
+    "integrityMatch": "Les quantités correspondent",
+    "integrityMismatch": "Les quantités ne correspondent pas",
+    "integrityUnknown": "Sous-total déclaré indisponible",
+    "integrityDetails": "Pièces produits : {{parsed}} · Sous-total déclaré : {{declared}}",
     "reviewTitle": "Vérification requise",
     "itemCode": "Code article",
     "reference": "Référence client",
@@ -40,6 +52,21 @@
     "quantity": "Quantité",
     "validation": "Contrôle",
     "valid": "Conforme",
-    "ignoredTitle": "Lignes exclues du total des produits"
+    "editQuantity": "Modifier la quantité de l’article {{itemCode}}",
+    "ignoredTitle": "Lignes exclues du total des produits",
+    "ignoredQuantity": "Quantité : {{quantity}}"
+  },
+  "generate": {
+    "title": "Générer les documents de commande",
+    "blockedTitle": "La génération des documents n’est pas encore configurée",
+    "blockedDescription": "Le classeur vierge de suivi requis ne figure pas parmi les références fournies et les cellules des modèles doivent encore être confirmées. Aucun document ni mouvement de stock n’a été créé.",
+    "documents": {
+      "followUp": "Fiche de suivi de commande",
+      "of": "Bon de fabrication",
+      "picking": "Fiche de ramassage",
+      "daFacing": "Demande DA de façades"
+    },
+    "notReady": "Configuration du modèle requise",
+    "generateButton": "Générer les documents"
   }
 }

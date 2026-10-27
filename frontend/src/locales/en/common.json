@@ -5,6 +5,16 @@
     "description": "Prepare a customer order",
     "language": "Language"
   },
+  "workflow": {
+    "label": "Order preparation steps",
+    "import": "Import",
+    "check": "Check",
+    "generate": "Generate",
+    "back": "Back",
+    "continue": "Continue",
+    "backToCheck": "Back to check",
+    "resolveWarnings": "Match the product quantities to the declared subtotal to continue."
+  },
   "upload": {
     "intro": "Import a proforma invoice to check its order lines before preparing the next documents.",
     "title": "Import proforma",
@@ -25,12 +35,14 @@
     "kicker": "Import summary",
     "title": "Proforma details",
     "lineCount": "{{count}} order lines",
+    "lineCountLabel": "Lines found",
+    "pieces": "Product pieces",
     "proforma": "Proforma",
     "order": "Customer order",
-    "customer": "Customer",
-    "date": "Issue date",
-    "incoterm": "Incoterm",
-    "subtotal": "Declared quantity",
+    "integrityMatch": "Quantities match",
+    "integrityMismatch": "Quantities do not match",
+    "integrityUnknown": "Declared subtotal unavailable",
+    "integrityDetails": "Product pieces: {{parsed}} · Declared subtotal: {{declared}}",
     "reviewTitle": "Review required",
     "itemCode": "Item code",
     "reference": "Client reference",
@@ -40,6 +52,21 @@
     "quantity": "Quantity",
     "validation": "Check",
     "valid": "Looks good",
-    "ignoredTitle": "Lines excluded from product totals"
+    "editQuantity": "Edit quantity for item {{itemCode}}",
+    "ignoredTitle": "Lines excluded from product totals",
+    "ignoredQuantity": "Quantity: {{quantity}}"
+  },
+  "generate": {
+    "title": "Generate order documents",
+    "blockedTitle": "Document generation is not set up yet",
+    "blockedDescription": "The required blank follow-up workbook is missing from the supplied references, and the template cell mappings still need confirmation. No documents or stock changes have been made.",
+    "documents": {
+      "followUp": "Order follow-up sheet",
+      "of": "Manufacturing order (OF)",
+      "picking": "Picking sheet",
+      "daFacing": "DA facing request"
+    },
+    "notReady": "Template setup required",
+    "generateButton": "Generate documents"
   }
 }

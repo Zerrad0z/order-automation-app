@@ -32,6 +32,8 @@ type ProformaResult = {
   warnings: string[];
 };
 
+type WorkflowStep = "import" | "check" | "generate";
+
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 function isProformaResult(value: unknown): value is ProformaResult {
@@ -62,12 +64,39 @@ export default function App() {
   const [result, setResult] = useState<ProformaResult | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState<WorkflowStep>("import");
+
+  const productPieces =
+    result?.lines.reduce((total, line) => total + line.quantity, 0) ?? 0;
+  const integrityKnown = result !== null && result.declaredSubtotal !== null;
+  const integrityMatches =
+    integrityKnown && productPieces === result.declaredSubtotal;
+  const reviewWarnings =
+    result?.warnings.filter(
+      (warning) =>
+        !warning.startsWith(
+          "Parsed quantities differ from the declared subtotal by",
+        ),
+    ) ?? [];
 
   function chooseFile(event: ChangeEvent<HTMLInputElement>) {
     const selected = event.target.files?.[0] ?? null;
     setFile(selected);
     setResult(null);
     setError("");
+    setStep("import");
+  }
+
+  function updateQuantity(lineIndex: number, quantity: number) {
+    setResult((current) => {
+      if (!current) {
+        return current;
+      }
+      const lines = current.lines.map((line, index) =>
+        index === lineIndex ? { ...line, quantity } : line,
+      );
+      return { ...current, lines };
+    });
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -123,6 +152,7 @@ export default function App() {
     }
 
     setResult(body);
+    setStep("check");
     setIsLoading(false);
   }
 
@@ -157,49 +187,69 @@ export default function App() {
           <p className="page-subtitle">{t("upload.intro")}</p>
         </div>
 
-        <form className="upload-card" onSubmit={(event) => void submit(event)}>
-          <div className="section-heading">
-            <div className="step-number" aria-hidden="true">
-              1
-            </div>
-            <div>
-              <h2>{t("upload.title")}</h2>
-              <p>{t("upload.description")}</p>
-            </div>
-          </div>
-          <label className="file-picker">
-            <input
-              type="file"
-              accept=".pdf,application/pdf"
-              onChange={chooseFile}
-              aria-label={t("upload.selectFile")}
-              aria-describedby="file-help"
-            />
-            <span className="file-icon" aria-hidden="true">
-              PDF
-            </span>
-            <span className="file-picker-copy">
-              <strong>{file ? file.name : t("upload.selectFile")}</strong>
-              <span id="file-help">{t("upload.fileHelp")}</span>
-            </span>
-            <span className="browse-button">{t("upload.browse")}</span>
-          </label>
-          <div className="upload-actions">
-            <p className="privacy-note">
-              <span aria-hidden="true">●</span> {t("upload.localNote")}
-            </p>
-            <button type="submit" disabled={!file || isLoading}>
-              {isLoading ? t("upload.working") : t("upload.submit")}
-            </button>
-          </div>
-          {error && (
-            <p className="error-message" role="alert">
-              {error}
-            </p>
+        <ol className="workflow-steps" aria-label={t("workflow.label")}>
+          {(["import", "check", "generate"] as const).map(
+            (workflowStep, index) => (
+              <li
+                key={workflowStep}
+                className={step === workflowStep ? "active-step" : ""}
+                aria-current={step === workflowStep ? "step" : undefined}
+              >
+                <span>{index + 1}</span>
+                {t(`workflow.${workflowStep}`)}
+              </li>
+            ),
           )}
-        </form>
+        </ol>
 
-        {result && (
+        {step === "import" && (
+          <form
+            className="upload-card"
+            onSubmit={(event) => void submit(event)}
+          >
+            <div className="section-heading">
+              <div className="step-number" aria-hidden="true">
+                1
+              </div>
+              <div>
+                <h2>{t("upload.title")}</h2>
+                <p>{t("upload.description")}</p>
+              </div>
+            </div>
+            <label className="file-picker">
+              <input
+                type="file"
+                accept=".pdf,application/pdf"
+                onChange={chooseFile}
+                aria-label={t("upload.selectFile")}
+                aria-describedby="file-help"
+              />
+              <span className="file-icon" aria-hidden="true">
+                PDF
+              </span>
+              <span className="file-picker-copy">
+                <strong>{file ? file.name : t("upload.selectFile")}</strong>
+                <span id="file-help">{t("upload.fileHelp")}</span>
+              </span>
+              <span className="browse-button">{t("upload.browse")}</span>
+            </label>
+            <div className="upload-actions">
+              <p className="privacy-note">
+                <span aria-hidden="true">●</span> {t("upload.localNote")}
+              </p>
+              <button type="submit" disabled={!file || isLoading}>
+                {isLoading ? t("upload.working") : t("upload.submit")}
+              </button>
+            </div>
+            {error && (
+              <p className="error-message" role="alert">
+                {error}
+              </p>
+            )}
+          </form>
+        )}
+
+        {result && step === "check" && (
           <section className="results-card" aria-labelledby="results-title">
             <div className="results-heading">
               <div>
@@ -211,7 +261,7 @@ export default function App() {
               </span>
             </div>
 
-            <dl className="metadata-grid">
+            <dl className="summary-chips">
               <div>
                 <dt>{t("results.proforma")}</dt>
                 <dd>{result.proformaNumber}</dd>
@@ -221,32 +271,41 @@ export default function App() {
                 <dd>{result.clientOrderNumber}</dd>
               </div>
               <div>
-                <dt>{t("results.customer")}</dt>
-                <dd>{result.customerName || "—"}</dd>
+                <dt>{t("results.lineCountLabel")}</dt>
+                <dd>{result.lines.length.toLocaleString(i18n.language)}</dd>
               </div>
               <div>
-                <dt>{t("results.date")}</dt>
-                <dd>{result.date || "—"}</dd>
-              </div>
-              <div>
-                <dt>{t("results.incoterm")}</dt>
-                <dd>{result.incoterm || "—"}</dd>
-              </div>
-              <div>
-                <dt>{t("results.subtotal")}</dt>
-                <dd>
-                  {result.declaredSubtotal === null
-                    ? "—"
-                    : result.declaredSubtotal.toLocaleString(i18n.language)}
-                </dd>
+                <dt>{t("results.pieces")}</dt>
+                <dd>{productPieces.toLocaleString(i18n.language)}</dd>
               </div>
             </dl>
 
-            {result.warnings.length > 0 && (
+            <div
+              className={`integrity-note ${!integrityKnown ? "integrity-unknown" : integrityMatches ? "integrity-match" : "integrity-mismatch"}`}
+              role="status"
+            >
+              <strong>
+                {result.declaredSubtotal === null
+                  ? t("results.integrityUnknown")
+                  : integrityMatches
+                    ? t("results.integrityMatch")
+                    : t("results.integrityMismatch")}
+              </strong>
+              <span>
+                {t("results.integrityDetails", {
+                  parsed: productPieces.toLocaleString(i18n.language),
+                  declared:
+                    result.declaredSubtotal?.toLocaleString(i18n.language) ??
+                    "—",
+                })}
+              </span>
+            </div>
+
+            {reviewWarnings.length > 0 && (
               <div className="warning-panel" role="status">
                 <h3>{t("results.reviewTitle")}</h3>
                 <ul>
-                  {result.warnings.map((warning, index) => (
+                  {reviewWarnings.map((warning, index) => (
                     <li key={`${warning}-${index}`}>{warning}</li>
                   ))}
                 </ul>
@@ -268,14 +327,37 @@ export default function App() {
                 </thead>
                 <tbody>
                   {result.lines.map((line, index) => (
-                    <tr key={`${line.itemCode}-${index}`}>
+                    <tr
+                      key={`${line.itemCode}-${index}`}
+                      className={
+                        line.invalidReasons.length > 0
+                          ? "warning-row"
+                          : undefined
+                      }
+                    >
                       <td className="code-cell">{line.itemCode}</td>
                       <td>{line.clientRef || "—"}</td>
                       <td>{line.collection || "—"}</td>
                       <td>{line.color || "—"}</td>
                       <td>{line.format || line.rawFormat || "—"}</td>
-                      <td className="number-cell">
-                        {line.quantity.toLocaleString(i18n.language)}
+                      <td className="number-cell quantity-input-cell">
+                        <input
+                          aria-label={t("results.editQuantity", {
+                            itemCode: line.itemCode,
+                          })}
+                          type="number"
+                          min="0"
+                          step="1"
+                          value={line.quantity}
+                          onChange={(event) =>
+                            updateQuantity(
+                              index,
+                              event.currentTarget.value === ""
+                                ? 0
+                                : Number(event.currentTarget.value),
+                            )
+                          }
+                        />
                       </td>
                       <td>
                         {line.invalidReasons.length === 0 ? (
@@ -300,13 +382,81 @@ export default function App() {
                 <ul>
                   {result.ignoredLines.map((line, index) => (
                     <li key={`${line.itemCode}-${index}`}>
-                      <strong>{line.itemCode}</strong> — {line.description} (
-                      {t("results.quantity")} {line.quantity}): {line.reason}
+                      <strong>{line.itemCode}</strong> — {line.description}
+                      <span>
+                        {t("results.ignoredQuantity", {
+                          quantity: line.quantity,
+                        })}
+                      </span>
+                      <span>{line.reason}</span>
                     </li>
                   ))}
                 </ul>
               </div>
             )}
+
+            <div className="workflow-actions">
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={() => setStep("import")}
+              >
+                {t("workflow.back")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep("generate")}
+                disabled={!integrityMatches}
+                title={
+                  integrityMatches ? undefined : t("workflow.resolveWarnings")
+                }
+              >
+                {t("workflow.continue")}
+              </button>
+            </div>
+          </section>
+        )}
+
+        {result && step === "generate" && (
+          <section className="results-card" aria-labelledby="generate-title">
+            <div className="results-heading">
+              <div>
+                <p className="eyebrow">{t("workflow.generate")}</p>
+                <h2 id="generate-title">{t("generate.title")}</h2>
+              </div>
+              <span className="result-count">{result.clientOrderNumber}</span>
+            </div>
+            <div className="generation-blocked" role="status">
+              <h3>{t("generate.blockedTitle")}</h3>
+              <p>{t("generate.blockedDescription")}</p>
+            </div>
+            <ul className="document-list">
+              {(["followUp", "of", "picking", "daFacing"] as const).map(
+                (documentType) => (
+                  <li key={documentType}>
+                    <span className="document-status" aria-hidden="true">
+                      —
+                    </span>
+                    {t(`generate.documents.${documentType}`)}
+                    <span className="document-unavailable">
+                      {t("generate.notReady")}
+                    </span>
+                  </li>
+                ),
+              )}
+            </ul>
+            <div className="workflow-actions">
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={() => setStep("check")}
+              >
+                {t("workflow.backToCheck")}
+              </button>
+              <button type="button" disabled>
+                {t("generate.generateButton")}
+              </button>
+            </div>
           </section>
         )}
       </section>

@@ -49,7 +49,14 @@ describe("Order Automation home", () => {
               invalidReasons: [],
             },
           ],
-          ignoredLines: [],
+          ignoredLines: [
+            {
+              itemCode: "8999999",
+              description: "Transport supplement",
+              quantity: 1,
+              reason: "Transport supplement",
+            },
+          ],
           declaredSubtotal: 2892,
           warnings: [],
         }),
@@ -69,15 +76,40 @@ describe("Order Automation home", () => {
       await screen.findByRole("heading", { name: "Proforma details" }),
     ).toBeInTheDocument();
     expect(screen.getByText("9340300")).toBeInTheDocument();
-    expect(
-      screen.getByRole("row", { name: /9340300.*2,892/ }),
-    ).toBeInTheDocument();
+    expect(screen.getByDisplayValue("2892")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Quantities match");
+    expect(screen.getByText("8999999")).toBeInTheDocument();
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
         "/api/proformas/parse",
         expect.objectContaining({ method: "POST" }),
       );
     });
+
+    const quantityInput = screen.getByRole("spinbutton", {
+      name: "Edit quantity for item 9340300",
+    });
+    fireEvent.change(quantityInput, { target: { value: "2900" } });
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Quantities do not match",
+    );
+    expect(screen.getByText("2,900")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+
+    fireEvent.change(quantityInput, { target: { value: "2892" } });
+    expect(screen.getByRole("status")).toHaveTextContent("Quantities match");
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(
+      screen.getByRole("heading", { name: "Generate order documents" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "The required blank follow-up workbook is missing",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Back to check" }));
+    expect(
+      screen.getByRole("heading", { name: "Proforma details" }),
+    ).toBeInTheDocument();
   });
 
   it("shows a clear error when the local API rejects the PDF", async () => {

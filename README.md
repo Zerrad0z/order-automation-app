@@ -21,12 +21,15 @@ and are excluded from Git; do not add customer files to source control.
 ## Proforma import
 
 Choose a text-based PDF proforma (up to 10 MB) in the app to extract order
-details and product lines. Scanned/image-only PDFs are not supported. The review
-shows validation warnings and keeps transport supplements separate from product
-quantities.
+details and product lines. Review and edit quantities, check them against the
+declared subtotal, and keep transport supplements separate from product
+quantities. Scanned/image-only PDFs are not supported.
 
 The parser endpoint is `POST /api/proformas/parse` with a multipart `file`
 field. The parser currently targets the supplied RESTAER/ZEYNA proforma layout.
+Workbook generation is not enabled yet: the required blank follow-up template
+is missing from the references, and the remaining template mappings need
+confirmation. No documents or stock changes are made by the current workflow.
 
 ## Build and test
 
