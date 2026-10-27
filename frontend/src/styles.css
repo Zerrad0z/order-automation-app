@@ -99,6 +99,31 @@ select {
   letter-spacing: 0.09em;
 }
 
+.topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  margin-right: 22px;
+}
+
+.topbar-nav button {
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.topbar-nav button:hover,
+.topbar-nav button.active-nav {
+  background: #e8f3ef;
+  color: var(--accent-dark);
+}
+
 .language-picker select {
   padding: 8px 30px 8px 11px;
   border: 1px solid var(--line);
@@ -190,12 +215,142 @@ h1 {
 }
 
 .upload-card,
-.results-card {
+.results-card,
+.history-card {
   padding: clamp(22px, 4vw, 36px);
   border: 1px solid rgb(220 228 237 / 84%);
   border-radius: 19px;
   background: rgb(255 255 255 / 92%);
   box-shadow: 0 18px 54px rgb(34 54 78 / 7%);
+}
+
+.history-heading,
+.detail-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.history-heading h2 {
+  margin-bottom: 0;
+  font-size: 22px;
+}
+
+.history-heading .eyebrow,
+.detail-heading .eyebrow {
+  margin-bottom: 6px;
+}
+
+.history-heading > button,
+.history-error button,
+.history-empty button {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.history-search {
+  display: block;
+  max-width: 380px;
+  margin-bottom: 18px;
+}
+
+.history-search input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: inherit;
+  font-size: 12px;
+}
+
+.history-table td {
+  vertical-align: middle;
+}
+
+.history-table th {
+  background: #f8fafb;
+}
+
+.order-status {
+  display: inline-block;
+  padding: 5px 8px;
+  border-radius: 20px;
+  background: #fff4de;
+  color: #806120;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.order-status.generated {
+  background: #eaf5ee;
+  color: #26714e;
+}
+
+.text-button {
+  padding: 5px 7px;
+  border: 0;
+  background: transparent;
+  color: var(--accent-dark);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.text-button:hover {
+  text-decoration: underline;
+}
+
+.history-message,
+.history-empty,
+.history-error {
+  margin: 0;
+  padding: 20px;
+  border-radius: 9px;
+  background: #f7f9fb;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.history-empty {
+  text-align: center;
+}
+
+.history-empty p,
+.history-error p {
+  margin-bottom: 12px;
+}
+
+.history-error {
+  border: 1px solid #f1c8c3;
+  background: #fff6f5;
+  color: #9c332b;
+}
+
+.order-detail {
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.detail-heading h3 {
+  margin-bottom: 0;
+  font-size: 17px;
+}
+
+.order-detail .metadata-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-top: 0;
 }
 
 .section-heading {
@@ -748,6 +903,25 @@ td {
     margin-top: 48px;
   }
 
+  .topbar-nav {
+    gap: 0;
+    margin-right: 8px;
+  }
+
+  .topbar-nav button {
+    padding: 8px 7px;
+    font-size: 10px;
+  }
+
+  .brand {
+    gap: 8px;
+  }
+
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+  }
+
   .file-picker {
     flex-wrap: wrap;
   }
@@ -766,6 +940,10 @@ td {
   }
 
   .metadata-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .order-detail .metadata-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -798,7 +976,8 @@ td {
   }
 
   .upload-card,
-  .results-card {
+  .results-card,
+  .history-card {
     border-color: #293644;
     background: rgb(26 37 50 / 94%);
     box-shadow: 0 24px 70px rgb(0 0 0 / 20%);
@@ -827,6 +1006,37 @@ td {
 
   .metadata-grid div {
     background: #1b2936;
+  }
+
+  .history-table th {
+    background: #1b2936;
+  }
+
+  .history-message,
+  .history-empty {
+    background: #1b2936;
+  }
+
+  .history-error {
+    border-color: #653d3a;
+    background: #321f20;
+    color: #ffb7af;
+  }
+
+  .topbar-nav button:hover,
+  .topbar-nav button.active-nav {
+    background: #1d3831;
+    color: #a9ddbd;
+  }
+
+  .order-status {
+    background: #3a3020;
+    color: #efcf83;
+  }
+
+  .order-status.generated {
+    background: #1b3025;
+    color: #a9ddbd;
   }
 
   .summary-chips div {

@@ -5,6 +5,11 @@
     "description": "Prepare a customer order",
     "language": "Language"
   },
+  "navigation": {
+    "label": "Main navigation",
+    "newOrder": "New order",
+    "history": "Orders"
+  },
   "workflow": {
     "label": "Order preparation steps",
     "import": "Import",
@@ -22,6 +27,35 @@
     "invalidResponse": "The application returned an unreadable order response.",
     "conflict": "An order with this customer order number already exists. No changes were made.",
     "createError": "The order draft could not be saved."
+  },
+  "history": {
+    "kicker": "Saved orders",
+    "title": "Orders",
+    "pageTitle": "Orders history",
+    "pageDescription": "Browse saved drafts and orders, then open a record to review its details.",
+    "newOrder": "New order",
+    "searchLabel": "Search orders",
+    "searchPlaceholder": "Search by order number or proforma",
+    "loading": "Loading orders…",
+    "loadError": "Could not load saved orders.",
+    "retry": "Try again",
+    "empty": "No orders have been saved yet.",
+    "startOrder": "Import a proforma",
+    "noMatches": "No orders match your search.",
+    "order": "Customer order",
+    "proforma": "Proforma",
+    "date": "Date",
+    "lines": "Lines",
+    "pieces": "Pieces",
+    "status": "Status",
+    "actions": "Details",
+    "incoterm": "Incoterm",
+    "viewDetails": "View",
+    "closeDetails": "Close",
+    "statuses": {
+      "DRAFT": "Draft",
+      "GENERATED": "Generated"
+    }
   },
   "upload": {
     "intro": "Import a proforma invoice to check its order lines before preparing the next documents.",

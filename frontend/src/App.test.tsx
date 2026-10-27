@@ -4,7 +4,9 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 import "./i18n";
@@ -25,6 +27,37 @@ describe("Order Automation home", () => {
     expect(
       screen.getByRole("button", { name: "Check proforma" }),
     ).toBeDisabled();
+  });
+
+  it("navigates between order history and the new-order workflow", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => [],
+      }),
+    );
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Orders" }));
+    expect(
+      await screen.findByRole("heading", { name: "Orders history" }),
+    ).toBeInTheDocument();
+    fireEvent.click(
+      within(
+        screen.getByRole("navigation", { name: "Main navigation" }),
+      ).getByRole("button", { name: "New order" }),
+    );
+    expect(
+      screen.getByRole("heading", { name: "Prepare a customer order" }),
+    ).toBeInTheDocument();
   });
 
   it("accepts a proforma dropped onto the file picker", () => {

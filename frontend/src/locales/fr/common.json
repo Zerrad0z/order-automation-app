@@ -5,6 +5,11 @@
     "description": "Préparer une commande client",
     "language": "Langue"
   },
+  "navigation": {
+    "label": "Navigation principale",
+    "newOrder": "Nouvelle commande",
+    "history": "Commandes"
+  },
   "workflow": {
     "label": "Étapes de préparation de la commande",
     "import": "Importer",
@@ -22,6 +27,35 @@
     "invalidResponse": "L’application a renvoyé une réponse de commande illisible.",
     "conflict": "Une commande portant ce numéro client existe déjà. Aucune modification n’a été effectuée.",
     "createError": "Le brouillon de commande n’a pas pu être enregistré."
+  },
+  "history": {
+    "kicker": "Commandes enregistrées",
+    "title": "Commandes",
+    "pageTitle": "Historique des commandes",
+    "pageDescription": "Consultez les brouillons et commandes enregistrés, puis ouvrez un dossier pour voir ses détails.",
+    "newOrder": "Nouvelle commande",
+    "searchLabel": "Rechercher des commandes",
+    "searchPlaceholder": "Rechercher par numéro de commande ou pro forma",
+    "loading": "Chargement des commandes…",
+    "loadError": "Impossible de charger les commandes enregistrées.",
+    "retry": "Réessayer",
+    "empty": "Aucune commande n’a encore été enregistrée.",
+    "startOrder": "Importer une pro forma",
+    "noMatches": "Aucune commande ne correspond à la recherche.",
+    "order": "Commande client",
+    "proforma": "Pro forma",
+    "date": "Date",
+    "lines": "Lignes",
+    "pieces": "Pièces",
+    "status": "État",
+    "actions": "Détails",
+    "incoterm": "Incoterm",
+    "viewDetails": "Voir",
+    "closeDetails": "Fermer",
+    "statuses": {
+      "DRAFT": "Brouillon",
+      "GENERATED": "Générée"
+    }
   },
   "upload": {
     "intro": "Importez une facture pro forma pour vérifier les lignes de commande avant de préparer les documents suivants.",

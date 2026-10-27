@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ChangeEvent, DragEvent, FormEvent } from "react";
 import { useTranslation } from "react-i18next";
+import OrdersHistory from "./OrdersHistory";
 
 type ProformaLine = {
   itemCode: string;
@@ -39,6 +40,7 @@ type SavedOrder = {
 };
 
 type WorkflowStep = "import" | "check" | "generate";
+type AppPage = "workflow" | "history";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -87,6 +89,7 @@ export default function App() {
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [draftError, setDraftError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
+  const [activePage, setActivePage] = useState<AppPage>("workflow");
 
   const productPieces =
     result?.lines.reduce((total, line) => total + line.quantity, 0) ?? 0;
@@ -112,6 +115,11 @@ export default function App() {
     setStep("import");
     setSavedOrder(null);
     setDraftError("");
+  }
+
+  function startNewOrder() {
+    setSelectedFile(null);
+    setActivePage("workflow");
   }
 
   function dropFile(event: DragEvent<HTMLLabelElement>) {
@@ -275,6 +283,24 @@ export default function App() {
             <span className="brand-caption">{t("app.kicker")}</span>
           </span>
         </a>
+        <nav className="topbar-nav" aria-label={t("navigation.label")}>
+          <button
+            className={activePage === "workflow" ? "active-nav" : ""}
+            type="button"
+            aria-current={activePage === "workflow" ? "page" : undefined}
+            onClick={startNewOrder}
+          >
+            {t("navigation.newOrder")}
+          </button>
+          <button
+            className={activePage === "history" ? "active-nav" : ""}
+            type="button"
+            aria-current={activePage === "history" ? "page" : undefined}
+            onClick={() => setActivePage("history")}
+          >
+            {t("navigation.history")}
+          </button>
+        </nav>
         <label className="language-picker">
           <span className="sr-only">{t("app.language")}</span>
           <select
@@ -290,26 +316,40 @@ export default function App() {
       <section className="workspace" aria-labelledby="page-title">
         <div className="page-heading">
           <p className="eyebrow">{t("app.kicker")}</p>
-          <h1 id="page-title">{t("app.description")}</h1>
-          <p className="page-subtitle">{t("upload.intro")}</p>
+          <h1 id="page-title">
+            {activePage === "history"
+              ? t("history.pageTitle")
+              : t("app.description")}
+          </h1>
+          <p className="page-subtitle">
+            {activePage === "history"
+              ? t("history.pageDescription")
+              : t("upload.intro")}
+          </p>
         </div>
 
-        <ol className="workflow-steps" aria-label={t("workflow.label")}>
-          {(["import", "check", "generate"] as const).map(
-            (workflowStep, index) => (
-              <li
-                key={workflowStep}
-                className={step === workflowStep ? "active-step" : ""}
-                aria-current={step === workflowStep ? "step" : undefined}
-              >
-                <span>{index + 1}</span>
-                {t(`workflow.${workflowStep}`)}
-              </li>
-            ),
-          )}
-        </ol>
+        {activePage === "workflow" && (
+          <ol className="workflow-steps" aria-label={t("workflow.label")}>
+            {(["import", "check", "generate"] as const).map(
+              (workflowStep, index) => (
+                <li
+                  key={workflowStep}
+                  className={step === workflowStep ? "active-step" : ""}
+                  aria-current={step === workflowStep ? "step" : undefined}
+                >
+                  <span>{index + 1}</span>
+                  {t(`workflow.${workflowStep}`)}
+                </li>
+              ),
+            )}
+          </ol>
+        )}
 
-        {step === "import" && (
+        {activePage === "history" && (
+          <OrdersHistory onNewOrder={startNewOrder} />
+        )}
+
+        {activePage === "workflow" && step === "import" && (
           <form
             className="upload-card"
             onSubmit={(event) => void submit(event)}
@@ -373,7 +413,7 @@ export default function App() {
           </form>
         )}
 
-        {result && step === "check" && (
+        {activePage === "workflow" && result && step === "check" && (
           <section className="results-card" aria-labelledby="results-title">
             <div className="results-heading">
               <div>
@@ -546,7 +586,7 @@ export default function App() {
           </section>
         )}
 
-        {result && step === "generate" && (
+        {activePage === "workflow" && result && step === "generate" && (
           <section className="results-card" aria-labelledby="generate-title">
             <div className="results-heading">
               <div>
