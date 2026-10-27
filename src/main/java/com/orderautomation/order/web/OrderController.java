@@ -49,4 +49,14 @@ public class OrderController {
       @PathVariable long id, @Valid @RequestBody ReplaceOrderLinesRequest request) {
     return orderMapper.toResponse(orderService.replaceLines(id, request.lines()));
   }
+
+  @PostMapping("/{id}/archive")
+  public OrderResponse archiveDraft(@PathVariable long id) {
+    return orderMapper.toResponse(orderService.archiveDraft(id));
+  }
+
+  @PostMapping("/{id}/restore")
+  public OrderResponse restoreArchived(@PathVariable long id) {
+    return orderMapper.toResponse(orderService.restoreArchived(id));
+  }
 }

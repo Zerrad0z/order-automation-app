@@ -67,6 +67,30 @@ public class OrderService {
     return get(id);
   }
 
+  @Transactional
+  public CustomerOrder archiveDraft(long id) {
+    return changeStatus(id, "DRAFT", "ARCHIVED", "ORDER_NOT_DRAFT");
+  }
+
+  @Transactional
+  public CustomerOrder restoreArchived(long id) {
+    return changeStatus(id, "ARCHIVED", "DRAFT", "ORDER_NOT_ARCHIVED");
+  }
+
+  private CustomerOrder changeStatus(
+      long id, String expectedStatus, String newStatus, String errorCode) {
+    CustomerOrder order = get(id);
+    if (!order.status().equals(expectedStatus)
+        || !orderRepository.updateStatus(id, expectedStatus, newStatus)) {
+      throw new AppException(
+          errorCode,
+          expectedStatus.equals("DRAFT")
+              ? "Only draft orders can be archived."
+              : "Only archived orders can be restored.");
+    }
+    return get(id);
+  }
+
   private List<OrderLine> toLines(List<OrderLineRequest> lines) {
     return lines.stream()
         .map(

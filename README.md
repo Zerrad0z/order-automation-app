@@ -30,7 +30,11 @@ field. The parser currently targets the supplied RESTAER/ZEYNA proforma layout.
 After checking the declared totals, the app saves a draft order. Draft orders
 can also be listed at `GET /api/orders`, read at `GET /api/orders/{id}`, and
 corrected with `PUT /api/orders/{id}/lines`. The Orders screen provides a
-searchable history of saved orders and their product-line details.
+searchable history of saved orders and their product-line details. Drafts can
+be archived after confirmation with `POST /api/orders/{id}/archive` and
+restored with `POST /api/orders/{id}/restore`; generated orders cannot be
+archived. Archived orders remain in the database and are hidden from the default
+history view, where they can be shown and restored.
 
 The Stock screen provides manually audited quantity adjustments. Its initial
 quantities are test values (999,999 per supported color and size); replace them

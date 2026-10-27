@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -28,6 +29,7 @@ import org.springframework.test.web.servlet.MvcResult;
 class OrderControllerTest {
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
+  @Autowired private JdbcTemplate jdbcTemplate;
 
   @Test
   void draftOrder_whenCreatedAndLinesReplaced_persistsAndReturnsOrder() throws Exception {
@@ -90,6 +92,42 @@ class OrderControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createRequest("../outside"))))
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void draftOrder_whenArchivedAndRestored_preservesOrderAndProtectsGeneratedStatus()
+      throws Exception {
+    String orderNumber = "ARCHIVE_" + UUID.randomUUID().toString().replace("-", "");
+    MvcResult created =
+        mockMvc
+            .perform(
+                post("/api/orders")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(createRequest(orderNumber))))
+            .andExpect(status().isCreated())
+            .andReturn();
+    long orderId =
+        objectMapper.readTree(created.getResponse().getContentAsString()).get("id").asLong();
+
+    mockMvc
+        .perform(post("/api/orders/{id}/archive", orderId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("ARCHIVED"))
+        .andExpect(jsonPath("$.lines[0].quantity").value(2));
+    mockMvc
+        .perform(post("/api/orders/{id}/restore", orderId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("DRAFT"));
+
+    jdbcTemplate.update("UPDATE customer_order SET status = 'GENERATED' WHERE id = ?", orderId);
+    mockMvc
+        .perform(post("/api/orders/{id}/archive", orderId))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("ORDER_NOT_DRAFT"));
+    mockMvc
+        .perform(get("/api/orders/{id}", orderId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("GENERATED"));
   }
 
   private Map<String, Object> createRequest(String orderNumber) {

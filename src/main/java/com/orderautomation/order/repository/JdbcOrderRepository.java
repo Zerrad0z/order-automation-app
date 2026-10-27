@@ -94,6 +94,16 @@ public class JdbcOrderRepository implements OrderRepository {
     insertLines(orderId, lines);
   }
 
+  @Override
+  public boolean updateStatus(long orderId, String expectedStatus, String newStatus) {
+    return jdbcTemplate.update(
+            "UPDATE customer_order SET status = ? WHERE id = ? AND status = ?",
+            newStatus,
+            orderId,
+            expectedStatus)
+        == 1;
+  }
+
   private void insertLines(long orderId, List<OrderLine> lines) {
     for (OrderLine line : lines) {
       jdbcTemplate.update(

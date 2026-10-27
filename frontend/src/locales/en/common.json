@@ -43,6 +43,12 @@
     "empty": "No orders have been saved yet.",
     "startOrder": "Import a proforma",
     "noMatches": "No orders match your search.",
+    "showArchived": "Show archived orders",
+    "allArchived": "All saved orders are archived. Use the checkbox above to show and restore them.",
+    "archiveOrder": "Archive {{orderNumber}}",
+    "restoreOrder": "Restore {{orderNumber}}",
+    "archiveConfirmation": "Archive draft order {{orderNumber}}? You can restore it later.",
+    "statusUpdateError": "Could not update the order status.",
     "order": "Customer order",
     "proforma": "Proforma",
     "date": "Date",
@@ -55,7 +61,8 @@
     "closeDetails": "Close",
     "statuses": {
       "DRAFT": "Draft",
-      "GENERATED": "Generated"
+      "GENERATED": "Generated",
+      "ARCHIVED": "Archived"
     }
   },
   "stock": {

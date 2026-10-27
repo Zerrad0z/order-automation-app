@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
 type OrderLine = {
@@ -73,27 +73,83 @@ async function fetchOrders(): Promise<SavedOrder[]> {
   return body;
 }
 
+async function changeOrderStatus(input: {
+  id: number;
+  action: "archive" | "restore";
+}): Promise<SavedOrder> {
+  const response = await fetch(`/api/orders/${input.id}/${input.action}`, {
+    method: "POST",
+  });
+  const body: unknown = await response.json();
+  if (!response.ok) {
+    const detail =
+      typeof body === "object" && body !== null
+        ? (body as Record<string, unknown>).detail
+        : undefined;
+    throw new Error(
+      typeof detail === "string" ? detail : "Could not update this order.",
+    );
+  }
+  if (!isSavedOrder(body)) {
+    throw new Error("The application returned an unreadable order response.");
+  }
+  return body;
+}
+
 type OrdersHistoryProps = {
   onNewOrder: () => void;
 };
 
 export default function OrdersHistory({ onNewOrder }: OrdersHistoryProps) {
   const { t, i18n } = useTranslation();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
   const ordersQuery = useQuery({
     queryKey: ["orders"],
     queryFn: fetchOrders,
   });
+  const statusMutation = useMutation({
+    mutationFn: changeOrderStatus,
+    onSuccess: (updatedOrder) => {
+      queryClient.setQueryData<SavedOrder[]>(["orders"], (currentOrders) =>
+        currentOrders?.map((order) =>
+          order.id === updatedOrder.id ? updatedOrder : order,
+        ),
+      );
+      if (updatedOrder.status === "ARCHIVED") {
+        setSelectedId(null);
+      }
+    },
+  });
 
   const orders = ordersQuery.data ?? [];
+  const visibleOrders = showArchived
+    ? orders
+    : orders.filter((order) => order.status !== "ARCHIVED");
   const normalizedSearch = search.trim().toLocaleLowerCase(i18n.language);
-  const filteredOrders = orders.filter((order) =>
+  const filteredOrders = visibleOrders.filter((order) =>
     `${order.clientOrderNumber} ${order.proformaNumber} ${order.customer}`
       .toLocaleLowerCase(i18n.language)
       .includes(normalizedSearch),
   );
   const selectedOrder = orders.find((order) => order.id === selectedId);
+
+  function updateOrderStatus(order: SavedOrder, action: "archive" | "restore") {
+    if (
+      action === "archive" &&
+      !window.confirm(
+        t("history.archiveConfirmation", {
+          orderNumber: order.clientOrderNumber,
+        }),
+      )
+    ) {
+      return;
+    }
+    statusMutation.reset();
+    statusMutation.mutate({ id: order.id, action });
+  }
 
   return (
     <section className="history-card" aria-labelledby="history-title">
@@ -116,6 +172,19 @@ export default function OrdersHistory({ onNewOrder }: OrdersHistoryProps) {
           placeholder={t("history.searchPlaceholder")}
         />
       </label>
+      <label className="archived-toggle">
+        <input
+          type="checkbox"
+          checked={showArchived}
+          onChange={(event) => setShowArchived(event.currentTarget.checked)}
+        />
+        <span>{t("history.showArchived")}</span>
+      </label>
+      {statusMutation.isError && (
+        <p className="error-message" role="alert">
+          {statusMutation.error.message || t("history.statusUpdateError")}
+        </p>
+      )}
 
       {ordersQuery.isPending && (
         <p className="history-message" role="status">
@@ -138,7 +207,12 @@ export default function OrdersHistory({ onNewOrder }: OrdersHistoryProps) {
           </button>
         </div>
       )}
-      {ordersQuery.isSuccess && orders.length > 0 && (
+      {ordersQuery.isSuccess &&
+        orders.length > 0 &&
+        visibleOrders.length === 0 && (
+          <p className="history-message">{t("history.allArchived")}</p>
+        )}
+      {ordersQuery.isSuccess && visibleOrders.length > 0 && (
         <>
           {filteredOrders.length === 0 ? (
             <p className="history-message">{t("history.noMatches")}</p>
@@ -177,10 +251,11 @@ export default function OrdersHistory({ onNewOrder }: OrdersHistoryProps) {
                           })}
                         </span>
                       </td>
-                      <td>
+                      <td className="history-row-actions">
                         <button
                           className="text-button"
                           type="button"
+                          disabled={statusMutation.isPending}
                           onClick={() =>
                             setSelectedId(
                               selectedId === order.id ? null : order.id,
@@ -191,6 +266,30 @@ export default function OrdersHistory({ onNewOrder }: OrdersHistoryProps) {
                             ? t("history.closeDetails")
                             : t("history.viewDetails")}
                         </button>
+                        {order.status === "DRAFT" && (
+                          <button
+                            className="text-button archive-button"
+                            type="button"
+                            disabled={statusMutation.isPending}
+                            onClick={() => updateOrderStatus(order, "archive")}
+                          >
+                            {t("history.archiveOrder", {
+                              orderNumber: order.clientOrderNumber,
+                            })}
+                          </button>
+                        )}
+                        {order.status === "ARCHIVED" && (
+                          <button
+                            className="text-button"
+                            type="button"
+                            disabled={statusMutation.isPending}
+                            onClick={() => updateOrderStatus(order, "restore")}
+                          >
+                            {t("history.restoreOrder", {
+                              orderNumber: order.clientOrderNumber,
+                            })}
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}

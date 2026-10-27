@@ -58,6 +58,7 @@ describe("Orders history", () => {
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it("lists saved orders and opens their line details", async () => {
@@ -127,5 +128,66 @@ describe("Orders history", () => {
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     expect(await screen.findByText("M20261020")).toBeInTheDocument();
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+  });
+
+  it("archives drafts only after confirmation and allows restoring them", async () => {
+    const archivedOrder = { ...savedOrders[0], status: "ARCHIVED" };
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => savedOrders,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => archivedOrder,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => savedOrders[0],
+      });
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.stubGlobal("fetch", fetchMock);
+    renderHistory();
+
+    expect(await screen.findByText("M20261020")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Archive M20261020" }));
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      "Archive draft order M20261020? You can restore it later.",
+    );
+    expect(
+      await screen.findByText(/All saved orders are archived/),
+    ).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenNthCalledWith(2, "/api/orders/7/archive", {
+      method: "POST",
+    });
+
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: "Show archived orders" }),
+    );
+    expect(await screen.findByText("M20261020")).toBeInTheDocument();
+    expect(screen.getByText("Archived")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Restore M20261020" }));
+    expect(await screen.findByText("Draft")).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenNthCalledWith(3, "/api/orders/7/restore", {
+      method: "POST",
+    });
+  });
+
+  it("does not archive a draft when confirmation is cancelled", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => savedOrders,
+    });
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+    vi.stubGlobal("fetch", fetchMock);
+    renderHistory();
+
+    expect(await screen.findByText("M20261020")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Archive M20261020" }));
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("M20261020")).toBeInTheDocument();
   });
 });

@@ -43,6 +43,12 @@
     "empty": "Aucune commande n’a encore été enregistrée.",
     "startOrder": "Importer une pro forma",
     "noMatches": "Aucune commande ne correspond à la recherche.",
+    "showArchived": "Afficher les commandes archivées",
+    "allArchived": "Toutes les commandes sont archivées. Cochez la case ci-dessus pour les afficher et les restaurer.",
+    "archiveOrder": "Archiver {{orderNumber}}",
+    "restoreOrder": "Restaurer {{orderNumber}}",
+    "archiveConfirmation": "Archiver le brouillon {{orderNumber}} ? Vous pourrez le restaurer plus tard.",
+    "statusUpdateError": "Impossible de modifier l’état de la commande.",
     "order": "Commande client",
     "proforma": "Pro forma",
     "date": "Date",
@@ -55,7 +61,8 @@
     "closeDetails": "Fermer",
     "statuses": {
       "DRAFT": "Brouillon",
-      "GENERATED": "Générée"
+      "GENERATED": "Générée",
+      "ARCHIVED": "Archivée"
     }
   },
   "stock": {

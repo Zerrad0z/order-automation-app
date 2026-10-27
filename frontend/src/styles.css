@@ -272,6 +272,20 @@ h1 {
   font-size: 12px;
 }
 
+.archived-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 18px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.archived-toggle input {
+  accent-color: var(--accent);
+}
+
 .history-table td {
   vertical-align: middle;
 }
@@ -294,6 +308,19 @@ h1 {
 .order-status.generated {
   background: #eaf5ee;
   color: #26714e;
+}
+
+.order-status.archived {
+  background: #edf0f3;
+  color: #64748b;
+}
+
+.history-row-actions {
+  min-width: 130px;
+}
+
+.archive-button {
+  color: #9c332b;
 }
 
 .text-button {
@@ -1134,6 +1161,15 @@ td {
   .order-status.generated {
     background: #1b3025;
     color: #a9ddbd;
+  }
+
+  .order-status.archived {
+    background: #293644;
+    color: #c1ccd7;
+  }
+
+  .archive-button {
+    color: #ffb7af;
   }
 
   .summary-chips div {

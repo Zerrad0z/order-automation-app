@@ -19,4 +19,6 @@ public interface OrderRepository {
   Optional<CustomerOrder> findById(long id);
 
   void replaceLines(long orderId, List<OrderLine> lines);
+
+  boolean updateStatus(long orderId, String expectedStatus, String newStatus);
 }

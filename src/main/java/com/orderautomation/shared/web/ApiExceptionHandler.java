@@ -15,7 +15,8 @@ public class ApiExceptionHandler {
     HttpStatus status =
         switch (exception.getCode()) {
           case "UPLOAD_TOO_LARGE" -> HttpStatus.PAYLOAD_TOO_LARGE;
-          case "ORDER_ALREADY_EXISTS", "ORDER_NOT_DRAFT" -> HttpStatus.CONFLICT;
+          case "ORDER_ALREADY_EXISTS", "ORDER_NOT_DRAFT", "ORDER_NOT_ARCHIVED" ->
+              HttpStatus.CONFLICT;
           case "ORDER_NOT_FOUND", "STOCK_ITEM_NOT_FOUND" -> HttpStatus.NOT_FOUND;
           case "PROFORMA_INVALID_FILE", "PROFORMA_NO_TEXT", "PROFORMA_HEADER_MISSING" ->
               HttpStatus.BAD_REQUEST;
