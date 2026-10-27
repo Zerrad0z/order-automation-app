@@ -353,6 +353,75 @@ h1 {
   margin-top: 0;
 }
 
+.stock-notice {
+  margin-bottom: 20px;
+  padding: 13px 15px;
+  border: 1px solid #edc8a9;
+  border-radius: 9px;
+  background: #fff7f0;
+  color: #82501f;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.stock-adjustment {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.stock-adjustment h3 {
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.stock-adjustment-fields {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.6fr) minmax(200px, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+}
+
+.stock-adjustment-fields label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.stock-adjustment-fields input {
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: inherit;
+  font-size: 12px;
+}
+
+.stock-adjustment-fields button {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.stock-adjustment-fields button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.stock-saved {
+  margin: 12px 0 0;
+  color: #26714e;
+  font-size: 12px;
+}
+
 .section-heading {
   display: flex;
   align-items: flex-start;
@@ -899,13 +968,21 @@ td {
     padding: 16px 16px 44px;
   }
 
+  .topbar {
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+
   .workspace {
     margin-top: 48px;
   }
 
   .topbar-nav {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: center;
     gap: 0;
-    margin-right: 8px;
+    margin: 0;
   }
 
   .topbar-nav button {
@@ -914,7 +991,13 @@ td {
   }
 
   .brand {
+    order: 1;
     gap: 8px;
+  }
+
+  .language-picker {
+    order: 2;
+    margin-left: auto;
   }
 
   .brand-mark {
@@ -945,6 +1028,10 @@ td {
 
   .order-detail .metadata-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stock-adjustment-fields {
+    grid-template-columns: 1fr;
   }
 
   .summary-chips {
@@ -1021,6 +1108,16 @@ td {
     border-color: #653d3a;
     background: #321f20;
     color: #ffb7af;
+  }
+
+  .stock-notice {
+    border-color: #654d37;
+    background: #30271d;
+    color: #efc397;
+  }
+
+  .stock-saved {
+    color: #a9ddbd;
   }
 
   .topbar-nav button:hover,

@@ -8,7 +8,8 @@
   "navigation": {
     "label": "Main navigation",
     "newOrder": "New order",
-    "history": "Orders"
+    "history": "Orders",
+    "stock": "Stock"
   },
   "workflow": {
     "label": "Order preparation steps",
@@ -57,6 +58,39 @@
       "GENERATED": "Generated"
     }
   },
+  "stock": {
+    "kicker": "Inventory",
+    "title": "Stock",
+    "pageTitle": "Stock management",
+    "pageDescription": "Review and manually adjust current RESTAER ZEYNA product quantities.",
+    "demoNotice": "All supported color and size combinations start at 999,999 as test stock. Replace these values with the actual inventory before relying on stock figures.",
+    "loading": "Loading stock…",
+    "loadError": "Could not load stock.",
+    "retry": "Try again",
+    "empty": "No stock items are available.",
+    "customer": "Customer",
+    "collection": "Collection",
+    "color": "Color",
+    "format": "Format",
+    "quantity": "On hand",
+    "adjust": "Adjust {{color}} {{format}}",
+    "adjustmentTitle": "Adjust {{color}} {{format}}",
+    "newQuantity": "New quantity",
+    "reason": "Reason for adjustment",
+    "reasonPlaceholder": "For example: physical stock count",
+    "invalidUpdate": "Enter a whole quantity of zero or more and a reason.",
+    "save": "Save adjustment",
+    "saving": "Saving…",
+    "saved": "Stock quantity and movement history updated.",
+    "updateError": "Could not update stock.",
+    "movementHistory": "Movement history",
+    "loadingMovements": "Loading stock movements…",
+    "movementError": "Could not load stock movements.",
+    "noMovements": "No movements recorded.",
+    "movementDate": "Date",
+    "change": "Change",
+    "relatedOrder": "Order ID"
+  },
   "upload": {
     "intro": "Import a proforma invoice to check its order lines before preparing the next documents.",
     "customer": "Customer",
@@ -103,7 +137,7 @@
   "generate": {
     "title": "Generate order documents",
     "blockedTitle": "Document generation is not set up yet",
-    "blockedDescription": "The required blank follow-up workbook is missing from the supplied references, and the template cell mappings still need confirmation. No documents or stock changes have been made.",
+    "blockedDescription": "The supplied workbook mappings and DA cutting disposition are not confirmed. No order documents or automatic stock movements have been made.",
     "documents": {
       "followUp": "Order follow-up sheet",
       "of": "Manufacturing order (OF)",

@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { ChangeEvent, DragEvent, FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import OrdersHistory from "./OrdersHistory";
+import StockManagement from "./StockManagement";
 
 type ProformaLine = {
   itemCode: string;
@@ -40,7 +41,7 @@ type SavedOrder = {
 };
 
 type WorkflowStep = "import" | "check" | "generate";
-type AppPage = "workflow" | "history";
+type AppPage = "workflow" | "history" | "stock";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -300,6 +301,14 @@ export default function App() {
           >
             {t("navigation.history")}
           </button>
+          <button
+            className={activePage === "stock" ? "active-nav" : ""}
+            type="button"
+            aria-current={activePage === "stock" ? "page" : undefined}
+            onClick={() => setActivePage("stock")}
+          >
+            {t("navigation.stock")}
+          </button>
         </nav>
         <label className="language-picker">
           <span className="sr-only">{t("app.language")}</span>
@@ -319,12 +328,16 @@ export default function App() {
           <h1 id="page-title">
             {activePage === "history"
               ? t("history.pageTitle")
-              : t("app.description")}
+              : activePage === "stock"
+                ? t("stock.pageTitle")
+                : t("app.description")}
           </h1>
           <p className="page-subtitle">
             {activePage === "history"
               ? t("history.pageDescription")
-              : t("upload.intro")}
+              : activePage === "stock"
+                ? t("stock.pageDescription")
+                : t("upload.intro")}
           </p>
         </div>
 
@@ -348,6 +361,8 @@ export default function App() {
         {activePage === "history" && (
           <OrdersHistory onNewOrder={startNewOrder} />
         )}
+
+        {activePage === "stock" && <StockManagement />}
 
         {activePage === "workflow" && step === "import" && (
           <form

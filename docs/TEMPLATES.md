@@ -103,9 +103,13 @@ silently renaming columns.
 Per-order/history values occupy rows 7–23. Observed formulas include
 `G7=SUM(E7-F7)`, `M7=K7*I7`, `N7=K7*L7*J7`, and `O7=(E7+M7)-F7`.
 The workbook has 43 formulas; formula-derived cells must be preserved. The
-two remaining-quantity expressions disagree about which quantities are
-included, so the DA disposition and calculation rules remain **TO CONFIRM**.
-Do not use this sample to infer a replacement formula.
+user confirms that `O` (`E + M - F`) is the inventory after the order. The
+93x64-cm plate example has manually entered per-plate yields in column `I`:
+9x13 = 9, 20x25 = 2, 21x29.7 = 1, 24x30 = 1, 29.7x42 = 1, and 30x40 = 1.
+The user wants a generated DA to include only dimensions in the order and has
+chosen app-managed inventory, initially seeded at 999,999 per supported item.
+The algorithm for arranging order dimensions on a plate is still **TO CONFIRM**;
+until then, preserve the previous DA layout rather than infer a cutting plan.
 
 Merged cells:
 
@@ -181,7 +185,17 @@ use external-workbook `XLOOKUP` formulas.
 if this workbook is ever confirmed as a template. The order sheet has an
 autofilter on `B6:I40`; its page setup is portrait A4 at 56%.
 
-## Other files and missing required references
+## `FICHE_SUIVI_COMMANDE_VIDE_x2.xlsx`
+
+The blank follow-up workbook is now available locally. It contains one `FICHE`
+sheet with two repeated forms, rows 1–12 and 14–25. The print area is `A1:F25`,
+with 24 merged regions, portrait A4 layout, and 100% scale. Each form has
+labels for client, customer order number, month, order/desired/agreed dates,
+frame count, shipping, volume, weight, pallet, and a checklist of related
+documents. Keep this customer workbook local and preserve its formatting when
+writing; field mappings and the exact output filename still need confirmation.
+
+## Other files and remaining confirmations
 
 - `MEDIDIS FACTURE PROFORMA 2600087.pdf` is the two-page source proforma. It
   contains 33 frame lines, a declared frame subtotal, and a separate transport
@@ -189,8 +203,6 @@ autofilter on `B6:I40`; its page setup is portrait A4 at 56%.
 - `PORTAFOTOS 03.06.2025.pdf` and `PORTAFOTOS 24.02.2025.pdf` are additional
   PDF reference material; they are not the sample proforma specified for the
   first parser acceptance test.
-- The specified blank follow-up workbook
-  `FICHE_SUIVI_COMMANDE_VIDE_x2.xlsx` is **not present**.
 - The configured output names `of_zeyna.xlsx`, `fiche_ramassage.xlsx`, and
   `da_facing.xlsx` must be confirmed against the supplied workbooks before
   template mapping or golden-file generation is implemented.

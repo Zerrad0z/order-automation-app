@@ -58,6 +58,14 @@ describe("Order Automation home", () => {
     expect(
       screen.getByRole("heading", { name: "Prepare a customer order" }),
     ).toBeInTheDocument();
+    fireEvent.click(
+      within(
+        screen.getByRole("navigation", { name: "Main navigation" }),
+      ).getByRole("button", { name: "Stock" }),
+    );
+    expect(
+      await screen.findByRole("heading", { name: "Stock management" }),
+    ).toBeInTheDocument();
   });
 
   it("accepts a proforma dropped onto the file picker", () => {
@@ -193,7 +201,7 @@ describe("Order Automation home", () => {
       await screen.findByRole("heading", { name: "Generate order documents" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent(
-      "The required blank follow-up workbook is missing",
+      "The supplied workbook mappings and DA cutting disposition are not confirmed",
     );
     expect(screen.getByText("Draft · M20261020")).toBeInTheDocument();
     const createOrderRequest = fetchMock.mock.calls[1];

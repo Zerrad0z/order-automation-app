@@ -8,7 +8,8 @@
   "navigation": {
     "label": "Navigation principale",
     "newOrder": "Nouvelle commande",
-    "history": "Commandes"
+    "history": "Commandes",
+    "stock": "Stock"
   },
   "workflow": {
     "label": "Étapes de préparation de la commande",
@@ -57,6 +58,39 @@
       "GENERATED": "Générée"
     }
   },
+  "stock": {
+    "kicker": "Inventaire",
+    "title": "Stock",
+    "pageTitle": "Gestion du stock",
+    "pageDescription": "Consultez et ajustez manuellement les quantités de produits RESTAER ZEYNA.",
+    "demoNotice": "Toutes les combinaisons de couleurs et de formats démarrent à 999 999 comme stock de test. Remplacez ces valeurs par l’inventaire réel avant de vous fier aux quantités affichées.",
+    "loading": "Chargement du stock…",
+    "loadError": "Impossible de charger le stock.",
+    "retry": "Réessayer",
+    "empty": "Aucun article en stock.",
+    "customer": "Client",
+    "collection": "Collection",
+    "color": "Couleur",
+    "format": "Format",
+    "quantity": "En stock",
+    "adjust": "Ajuster {{color}} {{format}}",
+    "adjustmentTitle": "Ajustement {{color}} {{format}}",
+    "newQuantity": "Nouvelle quantité",
+    "reason": "Motif de l’ajustement",
+    "reasonPlaceholder": "Par exemple : inventaire physique",
+    "invalidUpdate": "Saisissez un nombre entier positif ou nul et un motif.",
+    "save": "Enregistrer l’ajustement",
+    "saving": "Enregistrement…",
+    "saved": "Quantité et historique des mouvements mis à jour.",
+    "updateError": "Impossible de mettre à jour le stock.",
+    "movementHistory": "Historique des mouvements",
+    "loadingMovements": "Chargement des mouvements…",
+    "movementError": "Impossible de charger les mouvements du stock.",
+    "noMovements": "Aucun mouvement enregistré.",
+    "movementDate": "Date",
+    "change": "Variation",
+    "relatedOrder": "N° commande"
+  },
   "upload": {
     "intro": "Importez une facture pro forma pour vérifier les lignes de commande avant de préparer les documents suivants.",
     "customer": "Client",
@@ -103,7 +137,7 @@
   "generate": {
     "title": "Générer les documents de commande",
     "blockedTitle": "La génération des documents n’est pas encore configurée",
-    "blockedDescription": "Le classeur vierge de suivi requis ne figure pas parmi les références fournies et les cellules des modèles doivent encore être confirmées. Aucun document ni mouvement de stock n’a été créé.",
+    "blockedDescription": "Les correspondances des classeurs fournis et la disposition de découpe des façades DA ne sont pas confirmées. Aucun document de commande ni mouvement automatique de stock n’a été créé.",
     "documents": {
       "followUp": "Fiche de suivi de commande",
       "of": "Bon de fabrication",
