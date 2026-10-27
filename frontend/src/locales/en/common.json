@@ -45,6 +45,7 @@
     "noMatches": "No orders match your search.",
     "showArchived": "Show archived orders",
     "allArchived": "All saved orders are archived. Use the checkbox above to show and restore them.",
+    "continueDraft": "Continue draft",
     "archiveOrder": "Archive {{orderNumber}}",
     "restoreOrder": "Restore {{orderNumber}}",
     "archiveConfirmation": "Archive draft order {{orderNumber}}? You can restore it later.",
@@ -143,8 +144,8 @@
   },
   "generate": {
     "title": "Generate order documents",
-    "blockedTitle": "Document generation is not set up yet",
-    "blockedDescription": "The supplied workbook mappings and DA cutting disposition are not confirmed. No order documents or automatic stock movements have been made.",
+    "availableTitle": "Picking sheets can now be generated",
+    "availableDescription": "Generate the selected ZEYNA picking workbook now. The other documents, especially the DA cutting disposition, still need their template rules confirmed.",
     "documents": {
       "followUp": "Order follow-up sheet",
       "of": "Manufacturing order (OF)",
@@ -152,6 +153,11 @@
       "daFacing": "DA facing request"
     },
     "notReady": "Template setup required",
-    "generateButton": "Generate documents"
+    "pickingButton": "Generate picking sheet",
+    "pickingGenerating": "Generating…",
+    "pickingGenerated": "Picking sheet generated",
+    "generationError": "The picking sheet could not be generated.",
+    "networkError": "Could not reach the local application to generate the picking sheet.",
+    "downloadError": "The picking sheet was generated but could not be downloaded."
   }
 }

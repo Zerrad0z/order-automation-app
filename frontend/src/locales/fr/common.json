@@ -45,6 +45,7 @@
     "noMatches": "Aucune commande ne correspond à la recherche.",
     "showArchived": "Afficher les commandes archivées",
     "allArchived": "Toutes les commandes sont archivées. Cochez la case ci-dessus pour les afficher et les restaurer.",
+    "continueDraft": "Continuer le brouillon",
     "archiveOrder": "Archiver {{orderNumber}}",
     "restoreOrder": "Restaurer {{orderNumber}}",
     "archiveConfirmation": "Archiver le brouillon {{orderNumber}} ? Vous pourrez le restaurer plus tard.",
@@ -143,8 +144,8 @@
   },
   "generate": {
     "title": "Générer les documents de commande",
-    "blockedTitle": "La génération des documents n’est pas encore configurée",
-    "blockedDescription": "Les correspondances des classeurs fournis et la disposition de découpe des façades DA ne sont pas confirmées. Aucun document de commande ni mouvement automatique de stock n’a été créé.",
+    "availableTitle": "Les fiches de ramassage peuvent maintenant être générées",
+    "availableDescription": "Générez maintenant le classeur ZEYNA sélectionné. Les autres documents, notamment la disposition de découpe des façades DA, nécessitent encore la confirmation de leurs règles de modèle.",
     "documents": {
       "followUp": "Fiche de suivi de commande",
       "of": "Bon de fabrication",
@@ -152,6 +153,11 @@
       "daFacing": "Demande DA de façades"
     },
     "notReady": "Configuration du modèle requise",
-    "generateButton": "Générer les documents"
+    "pickingButton": "Générer la fiche de ramassage",
+    "pickingGenerating": "Génération…",
+    "pickingGenerated": "Fiche de ramassage générée",
+    "generationError": "La fiche de ramassage n’a pas pu être générée.",
+    "networkError": "Impossible de contacter l’application locale pour générer la fiche de ramassage.",
+    "downloadError": "La fiche de ramassage a été générée, mais son téléchargement a échoué."
   }
 }

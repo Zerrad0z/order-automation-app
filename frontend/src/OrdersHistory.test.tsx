@@ -10,15 +10,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import OrdersHistory from "./OrdersHistory";
 import "./i18n";
 
-function renderHistory(onNewOrder = vi.fn()) {
+function renderHistory(onNewOrder = vi.fn(), onResumeDraft = vi.fn()) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   return {
     onNewOrder,
+    onResumeDraft,
     ...render(
       <QueryClientProvider client={queryClient}>
-        <OrdersHistory onNewOrder={onNewOrder} />
+        <OrdersHistory onNewOrder={onNewOrder} onResumeDraft={onResumeDraft} />
       </QueryClientProvider>,
     ),
   };
@@ -59,6 +60,23 @@ describe("Orders history", () => {
     cleanup();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
+  });
+
+  it("offers a way to continue an unfinished draft", async () => {
+    const onResumeDraft = vi.fn();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => savedOrders,
+      }),
+    );
+    renderHistory(vi.fn(), onResumeDraft);
+
+    expect(await screen.findByText("M20261020")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Continue draft" }));
+
+    expect(onResumeDraft).toHaveBeenCalledWith(savedOrders[0]);
   });
 
   it("lists saved orders and opens their line details", async () => {

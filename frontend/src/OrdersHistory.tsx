@@ -22,6 +22,11 @@ type SavedOrder = {
   lines: OrderLine[];
 };
 
+type OrdersHistoryProps = {
+  onNewOrder: () => void;
+  onResumeDraft: (order: SavedOrder) => void;
+};
+
 function isOrderLine(value: unknown): value is OrderLine {
   if (typeof value !== "object" || value === null) {
     return false;
@@ -96,11 +101,10 @@ async function changeOrderStatus(input: {
   return body;
 }
 
-type OrdersHistoryProps = {
-  onNewOrder: () => void;
-};
-
-export default function OrdersHistory({ onNewOrder }: OrdersHistoryProps) {
+export default function OrdersHistory({
+  onNewOrder,
+  onResumeDraft,
+}: OrdersHistoryProps) {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -267,16 +271,27 @@ export default function OrdersHistory({ onNewOrder }: OrdersHistoryProps) {
                             : t("history.viewDetails")}
                         </button>
                         {order.status === "DRAFT" && (
-                          <button
-                            className="text-button archive-button"
-                            type="button"
-                            disabled={statusMutation.isPending}
-                            onClick={() => updateOrderStatus(order, "archive")}
-                          >
-                            {t("history.archiveOrder", {
-                              orderNumber: order.clientOrderNumber,
-                            })}
-                          </button>
+                          <>
+                            <button
+                              className="text-button"
+                              type="button"
+                              onClick={() => onResumeDraft(order)}
+                            >
+                              {t("history.continueDraft")}
+                            </button>
+                            <button
+                              className="text-button archive-button"
+                              type="button"
+                              disabled={statusMutation.isPending}
+                              onClick={() =>
+                                updateOrderStatus(order, "archive")
+                              }
+                            >
+                              {t("history.archiveOrder", {
+                                orderNumber: order.clientOrderNumber,
+                              })}
+                            </button>
+                          </>
                         )}
                         {order.status === "ARCHIVED" && (
                           <button

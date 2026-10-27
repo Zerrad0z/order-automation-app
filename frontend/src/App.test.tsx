@@ -68,6 +68,136 @@ describe("Order Automation home", () => {
     ).toBeInTheDocument();
   });
 
+  it("resumes a saved draft in the review step and saves its changes", async () => {
+    const savedOrder = {
+      id: 8,
+      customer: "RESTAER",
+      clientOrderNumber: "M20261020",
+      proformaNumber: "2600087",
+      proformaDate: "2026-10-22",
+      incoterm: "CFR",
+      status: "DRAFT",
+      lines: [
+        {
+          itemCode: "9340300",
+          clientRef: "208118",
+          collection: "ZEYNA",
+          color: "BLANC",
+          format: "10x15",
+          quantity: 1000,
+        },
+        {
+          itemCode: "9340301",
+          clientRef: "208119",
+          collection: "ZEYNA",
+          color: "BLANC",
+          format: "13x18",
+          quantity: 1892,
+        },
+      ],
+    };
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [savedOrder],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => savedOrder,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: {
+          get: () => 'attachment; filename="TEST_ORDER_fiche_ramassage.xlsx"',
+        },
+        blob: async () => new Blob(["xlsx data"]),
+      });
+    vi.stubGlobal("URL", {
+      createObjectURL: vi.fn().mockReturnValue("blob:test"),
+      revokeObjectURL: vi.fn(),
+    });
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(
+      () => undefined,
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Orders" }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Continue draft" }),
+    );
+    expect(
+      await screen.findByRole("heading", { name: "Proforma details" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("spinbutton", {
+        name: "Edit quantity for item 9340300",
+      }),
+    ).toHaveValue(1000);
+
+    fireEvent.change(
+      screen.getByRole("spinbutton", {
+        name: "Edit quantity for item 9340300",
+      }),
+      { target: { value: "999" } },
+    );
+    fireEvent.change(
+      screen.getByRole("spinbutton", {
+        name: "Edit quantity for item 9340301",
+      }),
+      { target: { value: "1893" } },
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    expect(
+      await screen.findByRole("heading", { name: "Generate order documents" }),
+    ).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      "/api/orders/8/lines",
+      expect.objectContaining({
+        method: "PUT",
+        body: JSON.stringify({
+          lines: [
+            {
+              itemCode: "9340300",
+              clientRef: "208118",
+              collection: "ZEYNA",
+              color: "BLANC",
+              format: "10x15",
+              quantity: 999,
+            },
+            {
+              itemCode: "9340301",
+              clientRef: "208119",
+              collection: "ZEYNA",
+              color: "BLANC",
+              format: "13x18",
+              quantity: 1893,
+            },
+          ],
+        }),
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Generate picking sheet" }),
+    );
+    expect(
+      await screen.findByText("Picking sheet generated"),
+    ).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      "/api/orders/8/documents/picking",
+      { method: "POST" },
+    );
+  });
+
   it("accepts a proforma dropped onto the file picker", () => {
     render(<App />);
     const file = new File(["pdf content"], "dropped.pdf", {
@@ -201,7 +331,7 @@ describe("Order Automation home", () => {
       await screen.findByRole("heading", { name: "Generate order documents" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent(
-      "The supplied workbook mappings and DA cutting disposition are not confirmed",
+      "Generate the selected ZEYNA picking workbook now",
     );
     expect(screen.getByText("Draft · M20261020")).toBeInTheDocument();
     const createOrderRequest = fetchMock.mock.calls[1];

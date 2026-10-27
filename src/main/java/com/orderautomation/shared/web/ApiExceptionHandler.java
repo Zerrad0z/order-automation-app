@@ -17,6 +17,11 @@ public class ApiExceptionHandler {
           case "UPLOAD_TOO_LARGE" -> HttpStatus.PAYLOAD_TOO_LARGE;
           case "ORDER_ALREADY_EXISTS", "ORDER_NOT_DRAFT", "ORDER_NOT_ARCHIVED" ->
               HttpStatus.CONFLICT;
+          case "PICKING_TEMPLATE_MISSING",
+                  "PICKING_TEMPLATE_INVALID",
+                  "PICKING_GENERATION_FAILED" ->
+              HttpStatus.INTERNAL_SERVER_ERROR;
+          case "ORDER_INVALID_NUMBER" -> HttpStatus.BAD_REQUEST;
           case "ORDER_NOT_FOUND", "STOCK_ITEM_NOT_FOUND" -> HttpStatus.NOT_FOUND;
           case "PROFORMA_INVALID_FILE", "PROFORMA_NO_TEXT", "PROFORMA_HEADER_MISSING" ->
               HttpStatus.BAD_REQUEST;

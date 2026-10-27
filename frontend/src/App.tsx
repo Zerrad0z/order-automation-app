@@ -37,7 +37,19 @@ type ProformaResult = {
 type SavedOrder = {
   id: number;
   status: string;
+  customer: string;
   clientOrderNumber: string;
+  proformaNumber: string;
+  proformaDate: string;
+  incoterm: string;
+  lines: Array<{
+    itemCode: string;
+    clientRef: string | null;
+    collection: string;
+    color: string;
+    format: string;
+    quantity: number;
+  }>;
 };
 
 type WorkflowStep = "import" | "check" | "generate";
@@ -67,6 +79,23 @@ function responseDetail(value: unknown): string | undefined {
   return typeof detail === "string" ? detail : undefined;
 }
 
+function isSavedOrderLine(
+  value: unknown,
+): value is SavedOrder["lines"][number] {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const line = value as Record<string, unknown>;
+  return (
+    typeof line.itemCode === "string" &&
+    (typeof line.clientRef === "string" || line.clientRef === null) &&
+    typeof line.collection === "string" &&
+    typeof line.color === "string" &&
+    typeof line.format === "string" &&
+    typeof line.quantity === "number"
+  );
+}
+
 function isSavedOrder(value: unknown): value is SavedOrder {
   if (typeof value !== "object" || value === null) {
     return false;
@@ -75,7 +104,13 @@ function isSavedOrder(value: unknown): value is SavedOrder {
   return (
     typeof order.id === "number" &&
     typeof order.status === "string" &&
-    typeof order.clientOrderNumber === "string"
+    typeof order.customer === "string" &&
+    typeof order.clientOrderNumber === "string" &&
+    typeof order.proformaNumber === "string" &&
+    typeof order.proformaDate === "string" &&
+    typeof order.incoterm === "string" &&
+    Array.isArray(order.lines) &&
+    order.lines.every(isSavedOrderLine)
   );
 }
 
@@ -89,6 +124,9 @@ export default function App() {
   const [savedOrder, setSavedOrder] = useState<SavedOrder | null>(null);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [draftError, setDraftError] = useState("");
+  const [isGeneratingPicking, setIsGeneratingPicking] = useState(false);
+  const [pickingGenerated, setPickingGenerated] = useState(false);
+  const [generationError, setGenerationError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [activePage, setActivePage] = useState<AppPage>("workflow");
 
@@ -116,10 +154,38 @@ export default function App() {
     setStep("import");
     setSavedOrder(null);
     setDraftError("");
+    setPickingGenerated(false);
+    setGenerationError("");
   }
 
   function startNewOrder() {
     setSelectedFile(null);
+    setActivePage("workflow");
+  }
+
+  function resumeDraft(order: SavedOrder) {
+    const lines: ProformaLine[] = order.lines.map((line) => ({
+      ...line,
+      clientRef: line.clientRef ?? "",
+      rawFormat: line.format,
+      invalidReasons: [],
+    }));
+    setResult({
+      proformaNumber: order.proformaNumber,
+      clientOrderNumber: order.clientOrderNumber,
+      date: order.proformaDate,
+      incoterm: order.incoterm,
+      customerName: order.customer,
+      lines,
+      ignoredLines: [],
+      declaredSubtotal: lines.reduce((total, line) => total + line.quantity, 0),
+      warnings: [],
+    });
+    setSavedOrder(order);
+    setStep("check");
+    setDraftError("");
+    setPickingGenerated(false);
+    setGenerationError("");
     setActivePage("workflow");
   }
 
@@ -160,6 +226,8 @@ export default function App() {
     setResult(null);
     setSavedOrder(null);
     setDraftError("");
+    setPickingGenerated(false);
+    setGenerationError("");
 
     const formData = new FormData();
     formData.append("file", file);
@@ -268,8 +336,62 @@ export default function App() {
     }
 
     setSavedOrder(body);
+    setPickingGenerated(false);
     setStep("generate");
     setIsSavingDraft(false);
+  }
+
+  async function generatePicking() {
+    if (!savedOrder || isGeneratingPicking) {
+      return;
+    }
+    setIsGeneratingPicking(true);
+    setGenerationError("");
+    setPickingGenerated(false);
+
+    let response: Response;
+    try {
+      response = await fetch(`/api/orders/${savedOrder.id}/documents/picking`, {
+        method: "POST",
+      });
+    } catch {
+      setGenerationError(t("generate.networkError"));
+      setIsGeneratingPicking(false);
+      return;
+    }
+    if (!response.ok) {
+      let body: unknown;
+      try {
+        body = await response.json();
+      } catch {
+        body = undefined;
+      }
+      setGenerationError(responseDetail(body) ?? t("generate.generationError"));
+      setIsGeneratingPicking(false);
+      return;
+    }
+
+    try {
+      const file = await response.blob();
+      if (file.size === 0) {
+        throw new Error(t("generate.generationError"));
+      }
+      const disposition = response.headers.get("content-disposition");
+      const fileName =
+        disposition?.match(/filename="([^"]+)"/i)?.[1] ??
+        `${savedOrder.clientOrderNumber}_fiche_ramassage.xlsx`;
+      const downloadUrl = URL.createObjectURL(file);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = fileName;
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 0);
+      setPickingGenerated(true);
+    } catch {
+      setGenerationError(t("generate.downloadError"));
+    } finally {
+      setIsGeneratingPicking(false);
+    }
   }
 
   return (
@@ -359,7 +481,10 @@ export default function App() {
         )}
 
         {activePage === "history" && (
-          <OrdersHistory onNewOrder={startNewOrder} />
+          <OrdersHistory
+            onNewOrder={startNewOrder}
+            onResumeDraft={resumeDraft}
+          />
         )}
 
         {activePage === "stock" && <StockManagement />}
@@ -616,21 +741,46 @@ export default function App() {
                   : result.clientOrderNumber}
               </span>
             </div>
-            <div className="generation-blocked" role="status">
-              <h3>{t("generate.blockedTitle")}</h3>
-              <p>{t("generate.blockedDescription")}</p>
+            <div className="generation-notice" role="status">
+              <h3>{t("generate.availableTitle")}</h3>
+              <p>{t("generate.availableDescription")}</p>
             </div>
+            {generationError && (
+              <p className="error-message" role="alert">
+                {generationError}
+              </p>
+            )}
             <ul className="document-list">
               {(["followUp", "of", "picking", "daFacing"] as const).map(
                 (documentType) => (
                   <li key={documentType}>
                     <span className="document-status" aria-hidden="true">
-                      —
+                      {documentType === "picking" && pickingGenerated
+                        ? "✓"
+                        : "—"}
                     </span>
                     {t(`generate.documents.${documentType}`)}
-                    <span className="document-unavailable">
-                      {t("generate.notReady")}
-                    </span>
+                    {documentType === "picking" ? (
+                      <button
+                        className="text-button"
+                        type="button"
+                        disabled={isGeneratingPicking}
+                        onClick={() => void generatePicking()}
+                      >
+                        {isGeneratingPicking
+                          ? t("generate.pickingGenerating")
+                          : t("generate.pickingButton")}
+                      </button>
+                    ) : (
+                      <span className="document-unavailable">
+                        {t("generate.notReady")}
+                      </span>
+                    )}
+                    {documentType === "picking" && pickingGenerated && (
+                      <span className="document-unavailable">
+                        {t("generate.pickingGenerated")}
+                      </span>
+                    )}
                   </li>
                 ),
               )}
@@ -642,9 +792,6 @@ export default function App() {
                 onClick={() => setStep("check")}
               >
                 {t("workflow.backToCheck")}
-              </button>
-              <button type="button" disabled>
-                {t("generate.generateButton")}
               </button>
             </div>
           </section>

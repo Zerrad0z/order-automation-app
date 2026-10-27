@@ -885,7 +885,7 @@ td {
   background: #f1f5f7;
 }
 
-.generation-blocked {
+.generation-notice {
   margin-bottom: 18px;
   padding: 16px;
   border: 1px solid #f0dfb8;
@@ -894,12 +894,12 @@ td {
   color: #6f5622;
 }
 
-.generation-blocked h3 {
+.generation-notice h3 {
   margin-bottom: 7px;
   font-size: 13px;
 }
 
-.generation-blocked p {
+.generation-notice p {
   margin-bottom: 0;
   font-size: 11px;
   line-height: 1.6;
@@ -1209,7 +1209,7 @@ td {
     color: #e7d59e;
   }
 
-  .generation-blocked {
+  .generation-notice {
     border-color: #66572f;
     background: #302a1b;
     color: #e7d59e;

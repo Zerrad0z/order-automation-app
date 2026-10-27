@@ -38,8 +38,13 @@ history view, where they can be shown and restored.
 
 The Stock screen provides manually audited quantity adjustments. Its initial
 quantities are test values (999,999 per supported color and size); replace them
-with actual inventory before relying on stock figures. Order generation remains
-disabled while workbook mappings and the DA facing disposition are unresolved.
+with actual inventory before relying on stock figures. Order generation is being
+implemented in stages. Unfinished drafts can be continued from Orders history.
+The selected ZEYNA picking workbook can be generated from a draft; it is saved under
+`%USERPROFILE%\OrderAutomation\orders\<order number>\fiche_ramassage.xlsx` and
+downloaded by the browser. Set `order-automation.template-dir` if the local
+`docs/` folder is elsewhere. The other document generators, including the DA
+facing disposition, remain unavailable until their template rules are confirmed.
 Orders do not yet trigger automatic stock movements.
 
 ## Build and test
