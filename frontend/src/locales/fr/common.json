@@ -1,8 +1,45 @@
 {
   "app": {
-    "kicker": "",
-    "title": "",
-    "description": "",
-    "status": ""
+    "kicker": "RESTAER · ZEYNA",
+    "title": "Automatisation des commandes",
+    "description": "Préparer une commande client",
+    "language": "Langue"
+  },
+  "upload": {
+    "intro": "Importez une facture pro forma pour vérifier les lignes de commande avant de préparer les documents suivants.",
+    "title": "Importer une pro forma",
+    "description": "Choisissez le PDF de la pro forma client pour extraire et vérifier ses informations.",
+    "selectFile": "Choisir une pro forma PDF",
+    "fileHelp": "PDF uniquement · Taille maximale 10 Mo",
+    "browse": "Parcourir",
+    "localNote": "Vos documents restent sur cet ordinateur.",
+    "submit": "Vérifier la pro forma",
+    "working": "Lecture du document…",
+    "pdfOnly": "Veuillez choisir un fichier PDF.",
+    "tooLarge": "Le PDF doit faire 10 Mo ou moins.",
+    "networkError": "Connexion à l’application locale impossible. Vérifiez qu’elle est démarrée puis réessayez.",
+    "invalidResponse": "L’application a renvoyé une réponse illisible. Veuillez réessayer.",
+    "parseError": "La pro forma n’a pas pu être traitée."
+  },
+  "results": {
+    "kicker": "Résumé de l’import",
+    "title": "Détails de la pro forma",
+    "lineCount": "{{count}} lignes de commande",
+    "proforma": "Pro forma",
+    "order": "Commande client",
+    "customer": "Client",
+    "date": "Date d’émission",
+    "incoterm": "Incoterm",
+    "subtotal": "Quantité déclarée",
+    "reviewTitle": "Vérification requise",
+    "itemCode": "Code article",
+    "reference": "Référence client",
+    "collection": "Collection",
+    "color": "Couleur",
+    "format": "Format",
+    "quantity": "Quantité",
+    "validation": "Contrôle",
+    "valid": "Conforme",
+    "ignoredTitle": "Lignes exclues du total des produits"
   }
 }

@@ -2,7 +2,44 @@
   "app": {
     "kicker": "RESTAER · ZEYNA",
     "title": "Order Automation",
-    "description": "A local workspace for preparing and managing customer orders.",
-    "status": "Your private workspace is ready."
+    "description": "Prepare a customer order",
+    "language": "Language"
+  },
+  "upload": {
+    "intro": "Import a proforma invoice to check its order lines before preparing the next documents.",
+    "title": "Import proforma",
+    "description": "Choose the customer's PDF proforma to extract and review its details.",
+    "selectFile": "Choose a PDF proforma",
+    "fileHelp": "PDF only · Maximum size 10 MB",
+    "browse": "Browse files",
+    "localNote": "Your documents stay on this computer.",
+    "submit": "Check proforma",
+    "working": "Reading document…",
+    "pdfOnly": "Choose a PDF file.",
+    "tooLarge": "The PDF must be 10 MB or smaller.",
+    "networkError": "Could not connect to the local application. Make sure it is running and try again.",
+    "invalidResponse": "The application returned an unreadable response. Please try again.",
+    "parseError": "The proforma could not be processed."
+  },
+  "results": {
+    "kicker": "Import summary",
+    "title": "Proforma details",
+    "lineCount": "{{count}} order lines",
+    "proforma": "Proforma",
+    "order": "Customer order",
+    "customer": "Customer",
+    "date": "Issue date",
+    "incoterm": "Incoterm",
+    "subtotal": "Declared quantity",
+    "reviewTitle": "Review required",
+    "itemCode": "Item code",
+    "reference": "Client reference",
+    "collection": "Collection",
+    "color": "Color",
+    "format": "Format",
+    "quantity": "Quantity",
+    "validation": "Check",
+    "valid": "Looks good",
+    "ignoredTitle": "Lines excluded from product totals"
   }
 }

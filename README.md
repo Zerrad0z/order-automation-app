@@ -1,9 +1,8 @@
 # Order Automation App
 
-Local order-document workflow for RESTAER (ZEYNA). The first milestone sets up
-the application, local database, health endpoint, and offline-capable web shell.
-The proforma samples and Excel templates required for document generation have
-not yet been supplied.
+Local order-document workflow for RESTAER (ZEYNA). The current milestone
+provides a local proforma import and review workflow, a PDF parser, a SQLite
+database foundation, and an API health endpoint.
 
 ## Requirements
 
@@ -15,8 +14,19 @@ not yet been supplied.
 On Windows, run `start.bat` to build the application, start the local server, and
 open `http://localhost:8080`. The server binds to `127.0.0.1`.
 
-The Maven wrapper downloads Maven and dependencies on the first build. Thereafter
-the application itself makes no external network calls.
+The Maven wrapper downloads Maven and dependencies on the first build. Customer
+proformas and Excel templates supplied in `docs/` are local reference material
+and are excluded from Git; do not add customer files to source control.
+
+## Proforma import
+
+Choose a text-based PDF proforma (up to 10 MB) in the app to extract order
+details and product lines. Scanned/image-only PDFs are not supported. The review
+shows validation warnings and keeps transport supplements separate from product
+quantities.
+
+The parser endpoint is `POST /api/proformas/parse` with a multipart `file`
+field. The parser currently targets the supplied RESTAER/ZEYNA proforma layout.
 
 ## Build and test
 
